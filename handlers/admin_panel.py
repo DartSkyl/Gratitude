@@ -7,7 +7,7 @@ from utils.admin_router import admin_router
 from keyboards.admin_reply import *
 from keyboards.admin_inline import *
 from states import AdminStates
-from loader import status_dict, bot_base, settings_dict
+from loader import status_dict, bot_base, settings_dict, bot
 from handlers.gratitude_checker import check_new_status
 
 
@@ -38,8 +38,8 @@ async def choice_setting(callback: CallbackQuery):
     setting_dict = {
         'set_status': ('Выберете действие:', status_setting),
         'set_level': (f'Порог достижения на данный момент <b>{settings_dict["achievement"]}</b> репутации', level_setting),
-        'set_notification': ('Выберете уведомление для изменения:', notification_setting),
-        'set_gratitude': ('Выберете действие:', gratitude_list_setting)
+        # 'set_notification': ('Выберете уведомление для изменения:', notification_setting),
+        # 'set_gratitude': ('Выберете действие:', gratitude_list_setting)
     }
     await callback.message.answer(setting_dict[callback.data][0], reply_markup=setting_dict[callback.data][1])
 
@@ -124,8 +124,6 @@ async def select_user_for_manipulation(msg: Message, state: FSMContext, reply=No
                         f'Всего репутации получено: <b>{user_info[1]}</b>\n'
                         f'На балансе: <b>{user_info[2]}\n</b>'
                         f'Статус пользователя: <b>{user_info[3]}</b>')
-            # await state.set_data({'uid': reply.id})
-            # await msg.answer(msg_text, reply_markup=balance_menu)
         except IndexError:
             # Значит пользователя нет в базе
             msg_text = (f'Пользователь <b>{reply.first_name}</b>:\n'
@@ -197,3 +195,97 @@ async def set_new_achievement(msg: Message, state: FSMContext):
         await state.clear()
     except ValueError:
         await msg.answer('Ошибка! Введите целое число:')
+
+
+# --------------------
+# Настройка уведомлений
+# --------------------
+
+
+@admin_router.callback_query(F.data == 'sett_notification')
+async def notification_menu(callback: CallbackQuery):
+    """Открываем меню доступных уведомлений"""
+    await callback.answer()
+    msg_text = (f'Установленные текста уведомлений:\n\n'
+                f'<b>Получение благодарности от пользователя</b> - {settings_dict["new_gratitude"]}\n\n'
+                f'<b>Преодоление порога достижения</b> - {settings_dict["new_achievement"]}\n\n'
+                f'<b>Получение нового статуса</b> - {settings_dict["new_status"]}\n\n'
+                f'<b>Начисление от администратора</b> - {settings_dict["admin_add"]}\n\n'
+                f'<b>Списание баллов</b> - {settings_dict["admin_reduce"]}')
+    await callback.message.answer(msg_text, reply_markup=notification_setting)
+
+
+@admin_router.callback_query(F.data.startswith('notif_'))
+async def start_notif_change(callback: CallbackQuery, state: FSMContext):
+    """Ловим уведомление, которое хотят изменить"""
+    await callback.answer()
+    await state.set_state(AdminStates.sett_notification)
+    await state.set_data({'notification': callback.data.replace('notif_', '')})
+    await callback.message.answer('Введите новый текст уведомления:', reply_markup=cancel_button)
+
+
+@admin_router.message(AdminStates.sett_notification)
+async def catch_new_text_for_notification(msg: Message, state: FSMContext):
+    """Ловим новый текст уведомления и сохраняем"""
+    notif = (await state.get_data())['notification']
+    settings_dict[notif] = msg.text
+    await bot_base.set_new_setting(notif, msg.text)
+    await msg.answer('Текст уведомления изменен!', reply_markup=main_menu)
+    await state.clear()
+
+
+# --------------------
+# Настройка "благодарственного" списка
+# --------------------
+
+
+@admin_router.callback_query(F.data == 'sett_gratitude')
+async def start_change_gratitude_list(callback: CallbackQuery):
+    """Показываем список установленных слов, а так же кнопки удалить и добавить """
+    await callback.answer()
+    msg_text = 'Текущий список "благодарственных" слов:\n\n'
+    for word in settings_dict['gratitude_list']:
+        msg_text += word + '\n'
+    await callback.message.answer(msg_text, reply_markup=gratitude_list_setting)
+
+
+@admin_router.callback_query(F.data.startswith('gratitude_'))
+async def choice_action_with_gratitude(callback: CallbackQuery, state: FSMContext):
+    """Выбор действия со списком благодарностей"""
+    await callback.answer()
+    action_dict = {
+        'gratitude_add': (AdminStates.gratitude_add, 'Введите новое слово:'),
+        'gratitude_del': (AdminStates.gratitude_del, 'Введите слова которое хотите удалить')
+    }
+    await state.set_state(action_dict[callback.data][0])
+    await callback.message.answer(action_dict[callback.data][1], reply_markup=cancel_button)
+
+
+@admin_router.message(AdminStates.gratitude_add)
+async def add_new_gratitude(msg: Message, state: FSMContext):
+    """Добавление новой благодарности"""
+    settings_dict['gratitude_list'].add(msg.text)
+    await bot_base.add_gratitude_word(msg.text)
+    await msg.answer('Новое слово добавлено!')
+    msg_text = 'Текущий список "благодарственных" слов:\n\n'
+    for word in settings_dict['gratitude_list']:
+        msg_text += word + '\n'
+    await msg.answer(msg_text)
+    await state.clear()
+
+
+@admin_router.message(AdminStates.gratitude_del)
+async def remove_gratitude(msg: Message, state: FSMContext):
+    """Удаление благодарности"""
+    try:
+        settings_dict['gratitude_list'].remove(msg.text)
+    except KeyError:  # При попытке удалить то чего нет
+        pass
+    await bot_base.remove_gratitude_word(msg.text)
+    await msg.answer('Слово удалено!')
+    msg_text = 'Текущий список "благодарственных" слов:\n\n'
+    for word in settings_dict['gratitude_list']:
+        msg_text += word + '\n'
+    await msg.answer(msg_text)
+    await state.clear()
+

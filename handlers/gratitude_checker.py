@@ -6,7 +6,7 @@ from aiogram.fsm.context import FSMContext
 from loader import bot_base, checker_router, status_dict, settings_dict
 
 
-gratitude_list = ['спасибо', 'благодарю']
+# gratitude_list = ['спасибо', 'благодарю']
 
 
 async def check_new_status(user_id):
@@ -48,13 +48,11 @@ async def check_gratitude_in_message(msg: Message):
     if msg.reply_to_message:
         user_id = msg.from_user.id  # Кто благодарит
         user_to_id = msg.reply_to_message.from_user.id  # Кого благодарит
-        if any(word in msg.text.lower() for word in gratitude_list) and user_id != user_to_id:
+        if any(word in msg.text.lower() for word in settings_dict['gratitude_list']) and user_id != user_to_id:
             await bot_base.add_points(user_to_id, 1)
             # Возвращается кортеж (статус, достижение)
             user_status = await check_new_status(user_to_id)
             msg_text = (f'<b>{msg.reply_to_message.from_user.first_name}!</b>\n{settings_dict["new_gratitude"]}\n' +
-                        (settings_dict['new_status'] if user_status[0] else '') + '\n' +
+                        (f"{settings_dict['new_status']}\n" if user_status[0] else '') +
                         (settings_dict['new_achievement'] if user_status[1] else ''))
             await msg.reply(msg_text)
-            # await msg.reply(f'Засчитан для {msg.reply_to_message.from_user.first_name}!\n' +
-            #                 (user_status[0] if user_status[0] else '') + ('\nДостижение!' if user_status[1] else ''))

@@ -20,7 +20,8 @@ settings_dict = {  # Содержит в себе настройки уведо�
     'new_achievement': 'Вы получили новое достижение',
     'new_status': 'Вы достигли нового статуса!',
     'admin_add': 'Администрация благодарит Вас за активное участие!',
-    'admin_reduce': 'С вашего баланса были списаны очки!'
+    'admin_reduce': 'С вашего баланса были списаны очки!',
+    'gratitude_list': {'спасибо', 'благодарю'}
 }
 
 
@@ -38,6 +39,9 @@ async def load_from_db():
             settings_dict[elem[0]] = int(elem[1])
         else:
             settings_dict[elem[0]] = elem[1]
+
+    for elem in await bot_base.get_gratitude_list():
+        settings_dict['gratitude_list'].add(elem[0])
 
 
 async def start_up():

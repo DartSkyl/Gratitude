@@ -24,7 +24,10 @@ class BotBase:
 
             cursor.execute('CREATE TABLE IF NOT EXISTS settings ('
                            'set_name VARCHAR(255) UNIQUE ON CONFLICT REPLACE,'
-                           'set_content VARCHAR(255));')
+                           'set_content TEXT);')
+
+            cursor.execute('CREATE TABLE IF NOT EXISTS gratitude_list ('
+                           'word VARCHAR(255) UNIQUE ON CONFLICT REPLACE);')
 
             connection.commit()
 
@@ -148,3 +151,26 @@ class BotBase:
             cursor = connection.cursor()
             all_settings = cursor.execute(f'SELECT * FROM settings').fetchall()
             return all_settings
+
+    @staticmethod
+    async def add_gratitude_word(word: str):
+        """Добавляем слова благодарности"""
+        with sqlite3.connect('gratitude.db') as connection:
+            cursor = connection.cursor()
+            cursor.execute(f'INSERT INTO gratitude_list (word) VALUES ("{word}");')
+            connection.commit()
+
+    @staticmethod
+    async def remove_gratitude_word(word: str):
+        """Удаляем слова благодарности"""
+        with sqlite3.connect('gratitude.db') as connection:
+            cursor = connection.cursor()
+            cursor.execute(f'DELETE FROM gratitude_list WHERE word = "{word}";')
+            connection.commit()
+
+    @staticmethod
+    async def get_gratitude_list():
+        with sqlite3.connect('gratitude.db') as connection:
+            cursor = connection.cursor()
+            all_words = cursor.execute(f'SELECT * FROM gratitude_list').fetchall()
+            return all_words
