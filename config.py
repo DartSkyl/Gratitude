@@ -10,6 +10,7 @@ else:
 
 BOT_TOKEN = os.getenv('bot_token')
 ADMIN_ID = int(os.getenv('admin_id'))
+CHAT_ID = int(os.getenv('chat_id'))
 
 # logging.basicConfig(
 #     filename='bot.log',

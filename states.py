@@ -8,3 +8,7 @@ class AdminStates(StatesGroup):
     status_add_name = State()
     status_add_points = State()
     gratitude_add = State()
+    select_user = State()
+    balance_add = State()
+    balance_reduce = State()
+    set_level = State()

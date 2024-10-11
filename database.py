@@ -15,13 +15,16 @@ class BotBase:
                            'user_id BIGINT PRIMARY KEY,'
                            'points_count INT,'
                            'points_balance INT,'
-                           'user_status VARCHAR(255));')
+                           'user_status VARCHAR(255),'
+                           'last_achievement INT);')
 
             cursor.execute('CREATE TABLE IF NOT EXISTS status ('
-                           'status_name VARCHAR(255) PRIMARY KEY,'
-                           'points_need INT);')
-            #
-            # cursor.execute('CREATE TABLE IF NOT EXISTS ;')
+                           'status_name VARCHAR(255) UNIQUE ON CONFLICT REPLACE,'
+                           'points_need INT PRIMARY KEY);')
+
+            cursor.execute('CREATE TABLE IF NOT EXISTS settings ('
+                           'set_name VARCHAR(255) UNIQUE ON CONFLICT REPLACE,'
+                           'set_content VARCHAR(255));')
 
             connection.commit()
 
@@ -38,14 +41,80 @@ class BotBase:
             connection.commit()
 
     @staticmethod
+    async def reduce_user_balance(user_id: int, points: int):
+        """Списание очков с баланса пользователя """
+        with sqlite3.connect('gratitude.db') as connection:
+            cursor = connection.cursor()
+            cursor.execute(f'UPDATE all_users SET points_balance = all_users.points_balance - {points} '
+                           f'WHERE user_id = {user_id};')
+            connection.commit()
+
+    @staticmethod
+    async def get_user_info(user_id: int):
+        """Выдаем всю информацию по пользователю"""
+        with sqlite3.connect('gratitude.db') as connection:
+            cursor = connection.cursor()
+            user_info = cursor.execute(f'SELECT * FROM all_users WHERE user_id = {user_id}').fetchall()
+            return user_info[0]  # Так как база возвращает список картежей
+
+    # @staticmethod
+    # async def get_static_points(user_id: int):
+    #     """Достаем из базы статические очки (которые нельзя списать) для статуса"""
+    #     with sqlite3.connect('gratitude.db') as connection:
+    #         cursor = connection.cursor()
+    #         points_count = cursor.execute(f'SELECT points_count FROM all_users WHERE user_id = {user_id}').fetchall()
+    #         return points_count[0][0]  # Так как база возвращает список картежей
+    #
+    # @staticmethod
+    # async def get_last_achievement(user_id: int):
+    #     """Достаем значение последнего достижения"""
+    #     with sqlite3.connect('gratitude.db') as connection:
+    #         cursor = connection.cursor()
+    #         points_count = cursor.execute(f'SELECT last_achievement FROM all_users WHERE user_id = {user_id}').fetchall()
+    #         return points_count[0][0]  # Так как база возвращает список картежей
+    #
+    # @staticmethod
+    # async def get_user_status(user_id: int):
+    #     """Вынимаем статус пользователя"""
+    #     with sqlite3.connect('gratitude.db') as connection:
+    #         cursor = connection.cursor()
+    #         user_status = cursor.execute(f'SELECT user_status FROM all_users WHERE user_id = {user_id}').fetchall()
+    #         return user_status[0][0]  # Так как база возвращает список картежей
+
+    @staticmethod
+    async def get_user_points_status_achievements(user_id: int):
+        """Достаем из базы сразу все что нужно для замера достижений и статуса"""
+        with sqlite3.connect('gratitude.db') as connection:
+            cursor = connection.cursor()
+            user_status = cursor.execute(f'SELECT points_count, user_status, last_achievement '
+                                         f'FROM all_users WHERE user_id = {user_id}').fetchall()
+            return user_status[0]  # Так как база возвращает список картежей
+
+    @staticmethod
+    async def set_user_status(user_id: int, status: str):
+        """Устанавливаем новый статус пользователю"""
+        with sqlite3.connect('gratitude.db') as connection:
+            cursor = connection.cursor()
+            cursor.execute(f'UPDATE all_users SET user_status = "{status}" WHERE user_id = {user_id};')
+            connection.commit()
+
+    @staticmethod
+    async def set_last_achievement(user_id: int, last_ach: int):
+        """Фиксируем получение порога достижения"""
+        with sqlite3.connect('gratitude.db') as connection:
+            cursor = connection.cursor()
+            cursor.execute(f'UPDATE all_users SET last_achievement = {last_ach} WHERE user_id = {user_id};')
+            connection.commit()
+
+    @staticmethod
     async def add_status(status_name: str, points_need: int):
         """Добавление нового статуса в базу"""
         with sqlite3.connect('gratitude.db') as connection:
             cursor = connection.cursor()
             cursor.execute(f'INSERT INTO status (status_name, points_need)'
                            f'VALUES ("{status_name}", {points_need})'
-                           f'ON CONFLICT (status_name)'
-                           f'DO UPDATE SET points_need = {points_need};')
+                           f'ON CONFLICT (points_need)'
+                           f'DO UPDATE SET status_name = "{status_name}";')
             connection.commit()
 
     @staticmethod
@@ -63,3 +132,19 @@ class BotBase:
             cursor = connection.cursor()
             all_status = cursor.execute(f'SELECT * FROM status').fetchall()
             return all_status
+
+    @staticmethod
+    async def set_new_setting(set_name: str, set_content):
+        """Устанавливаем настройку"""
+        with sqlite3.connect('gratitude.db') as connection:
+            cursor = connection.cursor()
+            cursor.execute(f'INSERT INTO settings (set_name, set_content) VALUES ("{set_name}", "{set_content}");')
+            connection.commit()
+
+    @staticmethod
+    async def get_all_settings():
+        """Достаем все настройки"""
+        with sqlite3.connect('gratitude.db') as connection:
+            cursor = connection.cursor()
+            all_settings = cursor.execute(f'SELECT * FROM settings').fetchall()
+            return all_settings

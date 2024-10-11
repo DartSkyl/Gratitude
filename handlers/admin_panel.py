@@ -7,13 +7,22 @@ from utils.admin_router import admin_router
 from keyboards.admin_reply import *
 from keyboards.admin_inline import *
 from states import AdminStates
-from loader import status_dict, bot_base
+from loader import status_dict, bot_base, settings_dict
+from handlers.gratitude_checker import check_new_status
 
 
 @admin_router.message(Command('start'))
-async def start_function(msg: Message):
+async def start_function(msg: Message, state: FSMContext):
     """Функция запуска админпанели"""
+    await state.clear()
     await msg.answer(f'Добрый день <b>{msg.from_user.first_name}</b>😀\nВыберете действие:', reply_markup=main_menu)
+
+
+@admin_router.message(F.text == '🚫 Отмена')
+async def cancel_func(msg: Message, state: FSMContext):
+    """Все отменяем и сбрасываем"""
+    await state.clear()
+    await msg.answer(f'Действие отменено\nВыберете действие:', reply_markup=main_menu)
 
 
 @admin_router.message(F.text == '⚙️ Настройки')
@@ -26,13 +35,18 @@ async def get_settings_menu(msg: Message):
 async def choice_setting(callback: CallbackQuery):
     """Выбор настройки и запуск ее изменений"""
     await callback.answer()
-    settings_dict = {
+    setting_dict = {
         'set_status': ('Выберете действие:', status_setting),
-        'set_level': ('Введите порог достижения:', None),
+        'set_level': (f'Порог достижения на данный момент <b>{settings_dict["achievement"]}</b> репутации', level_setting),
         'set_notification': ('Выберете уведомление для изменения:', notification_setting),
         'set_gratitude': ('Выберете действие:', gratitude_list_setting)
     }
-    await callback.message.answer(settings_dict[callback.data][0], reply_markup=settings_dict[callback.data][1])
+    await callback.message.answer(setting_dict[callback.data][0], reply_markup=setting_dict[callback.data][1])
+
+
+# --------------------
+# Управление статусами
+# --------------------
 
 
 @admin_router.callback_query(F.data.startswith('status_'))
@@ -63,7 +77,13 @@ async def get_status_points(msg: Message, state: FSMContext):
     """Ловим очки статуса"""
     try:
         status_name = (await state.get_data())['status_name']
-        status_dict[int(msg.text)] = status_name
+        for points, status in status_dict.items():
+            if status == status_name:
+                status_dict.pop(points)
+                status_dict[int(msg.text)] = status_name
+                break
+        else:
+            status_dict[int(msg.text)] = status_name
         await bot_base.add_status(status_name, int(msg.text))
         await msg.answer('Новый статус добавлен!', reply_markup=main_menu)
         await state.clear()
@@ -80,3 +100,100 @@ async def remove_status(callback: CallbackQuery):
     for points_need, status_name in status_dict.items():
         msg_text += f'<b>{status_name}</b>: <i>{points_need}</i> очков\n'
     await callback.message.edit_text(msg_text, reply_markup=await view_status_list(status_dict))
+
+
+# --------------------
+# Управление очками
+# --------------------
+
+
+@admin_router.message(F.text == '📋 Управление балансом')
+async def balance_management_menu(msg: Message, state: FSMContext):
+    """Открываем меню управления балансом пользователей"""
+    await msg.answer('Перешлите сообщение от пользователя, над чьим балансом хотите провести манипуляцию:')
+    await state.set_state(AdminStates.select_user)
+
+
+@admin_router.message(AdminStates.select_user, F.forward_from.as_('reply'))
+async def select_user_for_manipulation(msg: Message, state: FSMContext, reply=None):
+    """Запоминаем выбранного юзера"""
+    if reply:
+        try:
+            user_info = await bot_base.get_user_info(reply.id)
+            msg_text = (f'Пользователь <b>{reply.first_name}</b>:\n'
+                        f'Всего репутации получено: <b>{user_info[1]}</b>\n'
+                        f'На балансе: <b>{user_info[2]}\n</b>'
+                        f'Статус пользователя: <b>{user_info[3]}</b>')
+            # await state.set_data({'uid': reply.id})
+            # await msg.answer(msg_text, reply_markup=balance_menu)
+        except IndexError:
+            # Значит пользователя нет в базе
+            msg_text = (f'Пользователь <b>{reply.first_name}</b>:\n'
+                        f'Всего репутации получено: <b>0</b>\n'
+                        f'На балансе: <b>0\n</b>'
+                        f'Статус пользователя: <b>None</b>')
+
+        await state.set_data({'uid': reply.id, 'ufn': reply.first_name})
+        await msg.answer(msg_text, reply_markup=balance_menu)
+
+
+@admin_router.callback_query(AdminStates.select_user, F.data.startswith('balance_'))
+async def user_balance_manipulation(callback: CallbackQuery, state: FSMContext):
+    """Здесь начинается процесс изменения баланса пользователя"""
+    await callback.answer()
+    action_dict = {
+        'balance_add': (AdminStates.balance_add, 'Введите количество репутации которое хотите добавить:'),
+        'balance_reduce': (AdminStates.balance_reduce, 'Введите количество очков для списания:')
+    }
+    await callback.message.answer(action_dict[callback.data][1], reply_markup=cancel_button)
+    await state.set_state(action_dict[callback.data][0])
+
+
+@admin_router.message(AdminStates.balance_add)
+async def user_balance_add(msg: Message, state: FSMContext):
+    """Добавление баланса пользователю"""
+    try:
+        user = await state.get_data()
+        await bot_base.add_points(user['uid'], int(msg.text))
+        await msg.answer(f'Пользователю <b>{user["ufn"]}</b> начислено {msg.text} репутации', reply_markup=main_menu)
+        await check_new_status(user['uid'])
+        await state.clear()
+    except ValueError:
+        await msg.answer('Ошибка! Введите целое число:')
+
+
+@admin_router.message(AdminStates.balance_reduce)
+async def user_balance_reduce(msg: Message, state: FSMContext):
+    """Списание балов с баланса пользователя"""
+    try:
+        user = await state.get_data()
+        await bot_base.reduce_user_balance(user['uid'], int(msg.text))
+        await msg.answer(f'У пользователя <b>{user["ufn"]}</b> списано {msg.text} очков', reply_markup=main_menu)
+        await state.clear()
+    except ValueError:
+        await msg.answer('Ошибка! Введите целое число:')
+
+
+# --------------------
+# Установка порога достижения
+# --------------------
+
+
+@admin_router.callback_query(F.data == 'level_set')
+async def change_achievement(callback: CallbackQuery, state: FSMContext):
+    """Запускаем изменения порога достижений"""
+    await callback.answer()
+    await callback.message.answer('Введите новый порог достижений:', reply_markup=cancel_button)
+    await state.set_state(AdminStates.set_level)
+
+
+@admin_router.message(AdminStates.set_level)
+async def set_new_achievement(msg: Message, state: FSMContext):
+    """Устанавливаем новый порог достижений"""
+    try:
+        await bot_base.set_new_setting('achievement', int(msg.text))
+        settings_dict['achievement'] = int(msg.text)
+        await msg.answer(f'Новый порог достижения в {msg.text} репутации(ий) установлен', reply_markup=main_menu)
+        await state.clear()
+    except ValueError:
+        await msg.answer('Ошибка! Введите целое число:')

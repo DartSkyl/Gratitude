@@ -14,14 +14,30 @@ bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTM
 dp = Dispatcher(bot=bot, storage=MemoryStorage())
 bot_base = BotBase()
 status_dict = dict()  # Ключ - необходимое кол-во очков для его достижения, значение - название статуса
+settings_dict = {  # Содержит в себе настройки уведомлений и порога достижений
+    'achievement': 5,
+    'new_gratitude': 'Вас поблагодарили!\nВаша репутация возросла!',
+    'new_achievement': 'Вы получили новое достижение',
+    'new_status': 'Вы достигли нового статуса!',
+    'admin_add': 'Администрация благодарит Вас за активное участие!',
+    'admin_reduce': 'С вашего баланса были списаны очки!'
+}
 
 
 async def load_from_db():
-    """Выгружаем из базы статусы"""
+    """Выгружаем из базы статусы и настройки"""
     for elem in await bot_base.get_all_status():
         status_dict[elem[1]] = elem[0]
-    if len(status_dict) == 0:  # Если в базе пусто, то установим статус "по умолчанию"
-        status_dict[10] = 'Первооткрыватель'
+    if len(status_dict) == 0:  # Если в базе пусто, то установим статусы "по умолчанию"
+        status_dict[10] = 'Любитель чата'
+        status_dict[15] = 'Знаток чата'
+        status_dict[20] = 'Эксперт чата'
+
+    for elem in await bot_base.get_all_settings():
+        if elem[0] == 'achievement':
+            settings_dict[elem[0]] = int(elem[1])
+        else:
+            settings_dict[elem[0]] = elem[1]
 
 
 async def start_up():
