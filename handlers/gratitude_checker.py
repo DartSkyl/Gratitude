@@ -50,18 +50,28 @@ anti_spam_dict = {}
 async def view_user_points_and_status(msg: Message):
     """Выводим показания очков и статуса"""
     if not msg.reply_to_message:
-        user = await bot_base.get_user_info(msg.from_user.id)
-        msg_text = (f'Ваша репутация: <b>{user[1]}</b>\n'
-                    f'Статус: <i>{user[3] if user[3] != "None" else "Отсутствует"}</i>\n'
-                    f'На счету: <b>{user[2]}</b> баллов')
+        try:
+            user = await bot_base.get_user_info(msg.from_user.id)
+            msg_text = (f'Ваша репутация: <b>{user[1]}</b>\n'
+                        f'Статус: <i>{user[3] if user[3] != "None" else "Отсутствует"}</i>\n'
+                        f'На счету: <b>{user[2]}</b> баллов')
+        except IndexError:
+            msg_text = ('Ваша репутация: <b>0</b>\n'
+                        'Статус: <i>Отсутствует</i>\n'
+                        'На счету: <b>0</b> баллов')
         mess = await msg.reply(msg_text)
         await message_cleaner.schedule_message_deletion(mess.chat.id, mess.message_id)
     else:
-        user = await bot_base.get_user_info(msg.reply_to_message.from_user.id)
         user_name = await get_username(msg.chat.id, msg.reply_to_message.from_user.id)
-        msg_text = (f'Статистика {user_name}\nРепутация: <b>{user[1]}</b>\n'
-                    f'Статус: <i>{user[3] if user[3] != "None" else "Отсутствует"}</i>\n'
-                    f'На счету: <b>{user[2]}</b> баллов')
+        try:
+            user = await bot_base.get_user_info(msg.reply_to_message.from_user.id)
+            msg_text = (f'Статистика {user_name}\nРепутация: <b>{user[1]}</b>\n'
+                        f'Статус: <i>{user[3] if user[3] != "None" else "Отсутствует"}</i>\n'
+                        f'На счету: <b>{user[2]}</b> баллов')
+        except IndexError:
+            msg_text = (f'Статистика {user_name}\nРепутация: <b>0</b>\n'
+                        f'Статус: <i>"Отсутствует</i>\n'
+                        f'На счету: <b>0</b> баллов')
         mess = await msg.answer(msg_text)
         await message_cleaner.schedule_message_deletion(mess.chat.id, mess.message_id)
 
