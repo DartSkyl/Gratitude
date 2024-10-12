@@ -4,10 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9800e5bd-21d1-4780-bc02-9625d93be686" name="Changes" comment="feat: antispam, admin can add points in chats, helps and add chats">
-      <change beforePath="$PROJECT_DIR$/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/config.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/loader.py" beforeDir="false" afterPath="$PROJECT_DIR$/loader.py" afterDir="false" />
-    </list>
+    <list default="true" id="9800e5bd-21d1-4780-bc02-9625d93be686" name="Changes" comment="-||-" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -183,7 +180,23 @@
       <option name="project" value="LOCAL" />
       <updated>1728765282174</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="-||-">
+      <option name="closed" value="true" />
+      <created>1728765514064</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1728765514064</updated>
+    </task>
+    <task id="LOCAL-00008" summary="-||-">
+      <option name="closed" value="true" />
+      <created>1728765737255</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1728765737255</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="UnknownFeatures">
@@ -196,6 +209,7 @@
     <MESSAGE value="feat: admin panel finished" />
     <MESSAGE value="feat: added karma, rating and message cleaner functions" />
     <MESSAGE value="feat: antispam, admin can add points in chats, helps and add chats" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: antispam, admin can add points in chats, helps and add chats" />
+    <MESSAGE value="-||-" />
+    <option name="LAST_COMMIT_MESSAGE" value="-||-" />
   </component>
 </project>
