@@ -10,11 +10,10 @@ else:
 
 BOT_TOKEN = os.getenv('bot_token')
 ADMIN_ID = int(os.getenv('admin_id'))
-# CHAT_ID = [int(i) for i in os.getenv('chat_id').split()]
 
-# logging.basicConfig(
-#     filename='bot.log',
-#     filemode='a',
-#     format="%(asctime)s %(levelname)s %(message)s"
-# )
-# logging.getLogger().setLevel(logging.INFO)
+logging.basicConfig(
+    filename='bot.log',
+    filemode='a',
+    format="%(asctime)s %(levelname)s %(message)s"
+)
+logging.getLogger().setLevel(logging.INFO)
