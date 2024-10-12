@@ -16,4 +16,4 @@ logging.basicConfig(
     filemode='a',
     format="%(asctime)s %(levelname)s %(message)s"
 )
-logging.getLogger().setLevel(logging.INFO)
+logging.getLogger().setLevel(logging.ERROR)
