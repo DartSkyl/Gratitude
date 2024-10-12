@@ -52,26 +52,26 @@ async def view_user_points_and_status(msg: Message):
     if not msg.reply_to_message:
         try:
             user = await bot_base.get_user_info(msg.from_user.id)
-            msg_text = (f'Ваша репутация: <b>{user[1]}</b>\n'
-                        f'Статус: <i>{user[3] if user[3] != "None" else "Отсутствует"}</i>\n'
-                        f'На счету: <b>{user[2]}</b> баллов')
+            msg_text = (f'⭐️ Ваша репутация: <b>{user[1]}</b>\n'
+                        f'🎖 Статус: <i>{user[3] if user[3] != "None" else "Отсутствует"}</i>\n'
+                        f'🏵 На счету: <b>{user[2]}</b> баллов')
         except IndexError:
-            msg_text = ('Ваша репутация: <b>0</b>\n'
-                        'Статус: <i>Отсутствует</i>\n'
-                        'На счету: <b>0</b> баллов')
+            msg_text = ('⭐️ Ваша репутация: <b>0</b>\n'
+                        '🎖 Статус: <i>Отсутствует</i>\n'
+                        '🏵 На счету: <b>0</b> баллов')
         mess = await msg.reply(msg_text)
         await message_cleaner.schedule_message_deletion(mess.chat.id, mess.message_id)
     else:
         user_name = await get_username(msg.chat.id, msg.reply_to_message.from_user.id)
         try:
             user = await bot_base.get_user_info(msg.reply_to_message.from_user.id)
-            msg_text = (f'Статистика {user_name}\nРепутация: <b>{user[1]}</b>\n'
-                        f'Статус: <i>{user[3] if user[3] != "None" else "Отсутствует"}</i>\n'
-                        f'На счету: <b>{user[2]}</b> баллов')
+            msg_text = (f'Статистика {user_name}\n⭐️ Репутация: <b>{user[1]}</b>\n'
+                        f'🎖 Статус: <i>{user[3] if user[3] != "None" else "Отсутствует"}</i>\n'
+                        f'🏵 На счету: <b>{user[2]}</b> баллов')
         except IndexError:
-            msg_text = (f'Статистика {user_name}\nРепутация: <b>0</b>\n'
-                        f'Статус: <i>"Отсутствует</i>\n'
-                        f'На счету: <b>0</b> баллов')
+            msg_text = (f'Статистика {user_name}\n⭐️ Репутация: <b>0</b>\n'
+                        f'🎖 Статус: <i>Отсутствует</i>\n'
+                        f'🏵 На счету: <b>0</b> баллов')
         mess = await msg.answer(msg_text)
         await message_cleaner.schedule_message_deletion(mess.chat.id, mess.message_id)
 

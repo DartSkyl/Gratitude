@@ -1,14 +1,13 @@
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-import logging
 from loader import bot, settings_dict
-
-# logging.basicConfig()
-# logging.getLogger('apscheduler').setLevel(logging.DEBUG)
 
 
 async def remove_message(chat_id: int, msg_id: int, job_id: str):
     """Удаляет сообщение из чата"""
-    await bot.delete_message(chat_id=chat_id, message_id=msg_id)
+    try:
+        await bot.delete_message(chat_id=chat_id, message_id=msg_id)
+    except Exception as e:
+        print(e)
     await message_cleaner.remove_job(job_id)
 
 
