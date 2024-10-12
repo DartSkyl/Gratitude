@@ -1,0 +1,11 @@
+[Unit]
+Description=Gratitude bot
+
+[Service]
+Type=simple
+Restart=always
+ExecStart=/root/Gratitude/venv/bin/python /root/Gratitude/main.py
+OOMScoreAdjust=-1000
+
+[Install]
+WantedBy=multi-user.target
