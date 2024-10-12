@@ -1,7 +1,7 @@
-from aiogram.types import Message, CallbackQuery
-from aiogram import F
-from aiogram.filters import Command, CommandObject
-from aiogram.fsm.context import FSMContext
+import time
+
+from aiogram.types import Message
+from aiogram.filters import Command
 from aiogram.types.chat_member_member import ChatMemberMember
 
 from loader import bot_base, checker_router, status_dict, settings_dict, bot
@@ -42,12 +42,15 @@ async def get_username(chat_id, user_id):
     return None
 
 
+# Ключ - id пользователя, значение - время последней благодарности в секундах (unix)
+anti_spam_dict = {}
+
+
 @checker_router.message(Command('karma'))
-async def view_user_points_and_status(msg: Message, command: CommandObject):
+async def view_user_points_and_status(msg: Message):
     """Выводим показания очков и статуса"""
     if not msg.reply_to_message:
         user = await bot_base.get_user_info(msg.from_user.id)
-        # user_name = await get_username(msg.chat.id, msg.from_user.id)
         msg_text = (f'Ваша репутация: <b>{user[1]}</b>\n'
                     f'Статус: <i>{user[3] if user[3] != "None" else "Отсутствует"}</i>\n'
                     f'На счету: <b>{user[2]}</b> баллов')
@@ -76,18 +79,41 @@ async def get_rating(msg: Message):
     await message_cleaner.schedule_message_deletion(mess.chat.id, mess.message_id)
 
 
+@checker_router.message(Command('help'))
+async def help_for_users(msg: Message):
+    """Подсказка для пользователей"""
+    msg_text = ('Подсказка для пользователя:\n\n'
+                '/karma - отображает текущую статистику пользователя, вызвавшего команду. '
+                'В ответ на сообщение другого пользователя отображает статистику того '
+                'пользователя, в ответ на чье сообщение была вызвана команда')
+    mess = await msg.answer(msg_text)
+    await message_cleaner.schedule_message_deletion(mess.chat.id, mess.message_id)
+
+
 @checker_router.message()
 async def check_gratitude_in_message(msg: Message):
     """Основная функция, которая будет проверять есть ли благодарность в сообщении"""
     if msg.reply_to_message:
-        user_id = msg.from_user.id  # Кто благодарит
-        user_to_id = msg.reply_to_message.from_user.id  # Кого благодарит
-        if any(word in msg.text.lower() for word in settings_dict['gratitude_list']) and user_id != user_to_id:
-            await bot_base.add_points(user_to_id, 1)
-            # Возвращается кортеж (статус, достижение)
-            user_status = await check_new_status(user_to_id)
-            msg_text = (f'<b>{msg.reply_to_message.from_user.first_name}!</b>\n{settings_dict["new_gratitude"]}\n' +
-                        (f"{settings_dict['new_status']}\n" if user_status[0] else '') +
-                        (settings_dict['new_achievement'] if user_status[1] else '' + '\nРейтинг чата /rating'))
+
+        # Антиспам проверяет, что бы с последней благодарности было не больше 60 секунд
+        last = anti_spam_dict.get(msg.reply_to_message.from_user.id, 0)
+        last = int(time.time()) - last
+        if last >= 60:
+            user_id = msg.from_user.id  # Кто благодарит
+            user_to_id = msg.reply_to_message.from_user.id  # Кого благодарит
+            if any(word in msg.text.lower() for word in settings_dict['gratitude_list']) and user_id != user_to_id:
+                await bot_base.add_points(user_to_id, 1)
+                anti_spam_dict[user_to_id] = int(time.time())
+                # Возвращается кортеж (статус, достижение)
+                user_status = await check_new_status(user_to_id)
+                msg_text = (f'<b><i>{msg.reply_to_message.from_user.first_name}</i>, '
+                            f'Репутация + 1!</b>'
+                            f'\n{settings_dict["new_gratitude"]}\n' +
+                            (f"{settings_dict['new_status']}\n" if user_status[0] else '') +
+                            (settings_dict['new_achievement'] if user_status[1] else '' + '\nРейтинг чата /rating'))
+                mess = await msg.reply(msg_text)
+                await message_cleaner.schedule_message_deletion(mess.chat.id, mess.message_id)
+        else:
+            msg_text = f'Следующую благодарность можно будет получить через <b><i>{60 - last}</i></b> сек.'
             mess = await msg.reply(msg_text)
             await message_cleaner.schedule_message_deletion(mess.chat.id, mess.message_id)

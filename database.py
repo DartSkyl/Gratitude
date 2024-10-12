@@ -29,6 +29,9 @@ class BotBase:
             cursor.execute('CREATE TABLE IF NOT EXISTS gratitude_list ('
                            'word VARCHAR(255) UNIQUE ON CONFLICT REPLACE);')
 
+            cursor.execute('CREATE TABLE IF NOT EXISTS chats_list ('
+                           'chat_id BIGINT UNIQUE ON CONFLICT REPLACE);')
+
             connection.commit()
 
     @staticmethod
@@ -67,30 +70,6 @@ class BotBase:
             cursor = connection.cursor()
             user_info = cursor.execute(f'SELECT * FROM all_users ORDER BY points_count DESC').fetchall()
             return user_info
-
-    # @staticmethod
-    # async def get_static_points(user_id: int):
-    #     """Достаем из базы статические очки (которые нельзя списать) для статуса"""
-    #     with sqlite3.connect('gratitude.db') as connection:
-    #         cursor = connection.cursor()
-    #         points_count = cursor.execute(f'SELECT points_count FROM all_users WHERE user_id = {user_id}').fetchall()
-    #         return points_count[0][0]  # Так как база возвращает список картежей
-    #
-    # @staticmethod
-    # async def get_last_achievement(user_id: int):
-    #     """Достаем значение последнего достижения"""
-    #     with sqlite3.connect('gratitude.db') as connection:
-    #         cursor = connection.cursor()
-    #         points_count = cursor.execute(f'SELECT last_achievement FROM all_users WHERE user_id = {user_id}').fetchall()
-    #         return points_count[0][0]  # Так как база возвращает список картежей
-    #
-    # @staticmethod
-    # async def get_user_status(user_id: int):
-    #     """Вынимаем статус пользователя"""
-    #     with sqlite3.connect('gratitude.db') as connection:
-    #         cursor = connection.cursor()
-    #         user_status = cursor.execute(f'SELECT user_status FROM all_users WHERE user_id = {user_id}').fetchall()
-    #         return user_status[0][0]  # Так как база возвращает список картежей
 
     @staticmethod
     async def get_user_points_status_achievements(user_id: int):
@@ -182,3 +161,27 @@ class BotBase:
             cursor = connection.cursor()
             all_words = cursor.execute(f'SELECT * FROM gratitude_list').fetchall()
             return all_words
+
+    @staticmethod
+    async def add_chat(chat_id: int):
+        """Добавление чата в БД"""
+        with sqlite3.connect('gratitude.db') as connection:
+            cursor = connection.cursor()
+            cursor.execute(f'INSERT INTO chats_list (chat_id) VALUES ({chat_id});')
+            connection.commit()
+
+    @staticmethod
+    async def remove_chat(chat_id: int):
+        """Удаляем чат из БД"""
+        with sqlite3.connect('gratitude.db') as connection:
+            cursor = connection.cursor()
+            cursor.execute(f'DELETE FROM chats_list WHERE chat_id = {chat_id};')
+            connection.commit()
+
+    @staticmethod
+    async def get_chats():
+        """Достаем все чаты"""
+        with sqlite3.connect('gratitude.db') as connection:
+            cursor = connection.cursor()
+            all_chats = cursor.execute(f'SELECT * FROM chats_list').fetchall()
+            return all_chats

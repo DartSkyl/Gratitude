@@ -6,9 +6,20 @@ from aiogram.utils.keyboard import InlineKeyboardButton, InlineKeyboardMarkup, I
 
 all_settings = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text='Настройка званий', callback_data='set_status')],
+    [InlineKeyboardButton(text='Настройка интервала удаления сообщений', callback_data='set_interval')],
     [InlineKeyboardButton(text='Порог достижения', callback_data='set_level')],
     [InlineKeyboardButton(text='Настройка уведомлений', callback_data='sett_notification')],  # sett
-    [InlineKeyboardButton(text='Список "благодарностей"', callback_data='sett_gratitude')]  # sett
+    [InlineKeyboardButton(text='Список "благодарностей"', callback_data='sett_gratitude')],  # sett
+    [InlineKeyboardButton(text='Действующие чаты', callback_data='sett_chats')]  # sett
+])
+
+chats_setting = InlineKeyboardMarkup(inline_keyboard=[
+    [InlineKeyboardButton(text='Добавить чат', callback_data='chat_add')],
+    [InlineKeyboardButton(text='Удалить чат', callback_data='chat_del')]
+])
+
+interval_change = InlineKeyboardMarkup(inline_keyboard=[
+    [InlineKeyboardButton(text='Изменить интервал', callback_data='interval')],
 ])
 
 level_setting = InlineKeyboardMarkup(inline_keyboard=[

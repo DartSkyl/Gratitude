@@ -12,11 +12,10 @@ class IsAdminFilter(BaseFilter):
         self.admins_id = admin_id
 
     async def __call__(self, message: Message) -> bool:
-        from loader import settings_dict
-        return message.from_user.id == self.admins_id and message.chat.id not in settings_dict['chats']
+        return message.from_user.id == self.admins_id
 
 
-admin_router = Router()
+admin_router_for_chats = Router()
 
 # Выше описанный фильтр добавляем прямо в роутер
-admin_router.message.filter(IsAdminFilter(ADMIN_ID))
+admin_router_for_chats.message.filter(IsAdminFilter(ADMIN_ID))

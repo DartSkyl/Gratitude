@@ -9,7 +9,6 @@ from keyboards.admin_inline import *
 from states import AdminStates
 from loader import status_dict, bot_base, settings_dict, bot
 from handlers.gratitude_checker import check_new_status, get_username
-from config import CHAT_ID
 from utils.message_cleaner import message_cleaner
 
 
@@ -40,10 +39,94 @@ async def choice_setting(callback: CallbackQuery):
     setting_dict = {
         'set_status': ('Выберете действие:', status_setting),
         'set_level': (f'Порог достижения на данный момент <b>{settings_dict["achievement"]}</b> репутации', level_setting),
-        # 'set_notification': ('Выберете уведомление для изменения:', notification_setting),
-        # 'set_gratitude': ('Выберете действие:', gratitude_list_setting)
+        'set_interval': (f'Интервал удаления сообщений установлен на '
+                         f'<b>{await message_cleaner.get_interval()}</b> минут', interval_change)
     }
     await callback.message.answer(setting_dict[callback.data][0], reply_markup=setting_dict[callback.data][1])
+
+
+# --------------------
+# Настройка интервала и действующих чатов
+# --------------------
+
+
+@admin_router.callback_query(F.data == 'interval')
+async def start_change_interval(callback: CallbackQuery, state: FSMContext):
+    """Запуск изменения интервала"""
+    await callback.answer()
+    await callback.message.answer('Введите новое значение интервала:', reply_markup=cancel_button)
+    await state.set_state(AdminStates.interval)
+
+
+@admin_router.message(AdminStates.interval)
+async def set_interval(msg: Message, state: FSMContext):
+    """Меняем значение интервала"""
+    try:
+        await message_cleaner.set_interval(int(msg.text))
+        await msg.answer('Новый интервал установлен', reply_markup=main_menu)
+        await bot_base.set_new_setting('interval', msg.text)
+        await state.clear()
+    except ValueError:
+        await msg.answer('Ошибка! Введите целое число:')
+
+
+@admin_router.callback_query(F.data == 'sett_chats')
+async def get_chats_list(callback: CallbackQuery):
+    """Открываем список чатов и выбор действия с ними"""
+    await callback.answer()
+    msg_text = 'Действующие чаты:\n\n'
+    for chat in settings_dict['chats']:
+        ch = await bot.get_chat(chat)
+        msg_text += f'<b>{ch.title}</b>\n'
+    await callback.message.answer(msg_text, reply_markup=chats_setting)
+
+
+@admin_router.callback_query(F.data.startswith('chat_'))
+async def choice_action_with_chat(callback: CallbackQuery, state: FSMContext):
+    """Выбор действия с чатами"""
+    await callback.answer()
+    action_dict = {
+        'chat_add': ('Вставьте ссылку формата https://t.me/chat_username или id чата для добавления', AdminStates.chat_add),
+        'chat_del': ('Вставьте ссылку формата https://t.me/chat_username или id чата для удаления', AdminStates.chat_del)
+    }
+    await callback.message.answer(action_dict[callback.data][0], reply_markup=cancel_button)
+    await state.set_state(action_dict[callback.data][1])
+
+
+@admin_router.message(AdminStates.chat_add)
+async def add_chat_to_bot(msg: Message, state: FSMContext):
+    """Ловим ссылку для добавления чата и производим соответствующие операции"""
+    try:
+        if 'https' in msg.text:
+            chat = msg.text.replace('https://t.me/', '@')
+            chat = await bot.get_chat(chat)
+        else:
+            chat = await bot.get_chat(int(msg.text))
+        settings_dict['chats'].add(chat.id)
+        await bot_base.add_chat(chat.id)
+        await state.clear()
+        await msg.answer(f'Чат <b>{chat.title}</b> добавлен', reply_markup=main_menu)
+    except Exception as e:
+        await msg.answer('Ошибка ввода!')
+        print(e)
+
+
+@admin_router.message(AdminStates.chat_del)
+async def remove_chat_from_bot(msg: Message, state: FSMContext):
+    """Ловим ссылку для удаления чата и производим соответствующие операции"""
+    try:
+        if 'https' in msg.text:
+            chat = msg.text.replace('https://t.me/', '@')
+            chat = await bot.get_chat(chat)
+        else:
+            chat = await bot.get_chat(int(msg.text))
+        settings_dict['chats'].remove(chat.id)
+        await bot_base.remove_chat(chat.id)
+        await state.clear()
+        await msg.answer(f'Чат <b>{chat.title}</b> удален', reply_markup=main_menu)
+    except Exception as e:
+        await msg.answer('Ошибка ввода!')
+        print(e)
 
 
 # --------------------
@@ -158,7 +241,7 @@ async def user_balance_add(msg: Message, state: FSMContext):
         await msg.answer(f'Пользователю <b>{user["ufn"]}</b> начислено {msg.text} репутации', reply_markup=main_menu)
         await check_new_status(user['uid'])
 
-        for chat in CHAT_ID:  # Ищем юзера по всем чатам и по этим же чатам и отправляем уведомление
+        for chat in settings_dict['chats']:  # Ищем юзера по всем чатам и по этим же чатам и отправляем уведомление
             try:
                 user_name = await get_username(chat, user['uid'])
                 if user_name:
@@ -179,7 +262,7 @@ async def user_balance_reduce(msg: Message, state: FSMContext):
         user = await state.get_data()
         await bot_base.reduce_user_balance(user['uid'], int(msg.text))
         await msg.answer(f'У пользователя <b>{user["ufn"]}</b> списано {msg.text} очков', reply_markup=main_menu)
-        for chat in CHAT_ID:  # Ищем юзера по всем чатам и по этим же чатам и отправляем уведомление
+        for chat in settings_dict['chats']:  # Ищем юзера по всем чатам и по этим же чатам и отправляем уведомление
             try:
                 user_name = await get_username(chat, user['uid'])
                 if user_name:

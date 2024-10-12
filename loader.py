@@ -6,6 +6,7 @@ from aiogram.client.default import DefaultBotProperties
 
 from config import BOT_TOKEN
 from utils.admin_router import admin_router
+from utils.admin_router_for_chats import admin_router_for_chats
 from utils.checker_router import checker_router
 from database import BotBase
 
@@ -13,6 +14,7 @@ from database import BotBase
 bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 dp = Dispatcher(bot=bot, storage=MemoryStorage())
 dp.include_router(admin_router)
+dp.include_router(admin_router_for_chats)
 dp.include_router(checker_router)
 bot_base = BotBase()
 status_dict = dict()  # Ключ - необходимое кол-во очков для его достижения, значение - название статуса
@@ -23,7 +25,9 @@ settings_dict = {  # Содержит в себе настройки уведо�
     'new_status': 'Вы достигли нового статуса!',
     'admin_add': 'Администрация благодарит Вас за активное участие!',
     'admin_reduce': 'С вашего баланса были списаны очки!',
-    'gratitude_list': {'спасибо', 'благодарю'}
+    'gratitude_list': {'спасибо', 'благодарю'},
+    'interval': 3,
+    'chats': set()
 }
 
 
@@ -37,7 +41,7 @@ async def load_from_db():
         status_dict[20] = 'Эксперт чата'
 
     for elem in await bot_base.get_all_settings():
-        if elem[0] == 'achievement':
+        if elem[0] in ['achievement', 'interval']:
             settings_dict[elem[0]] = int(elem[1])
         else:
             settings_dict[elem[0]] = elem[1]
@@ -45,11 +49,5 @@ async def load_from_db():
     for elem in await bot_base.get_gratitude_list():
         settings_dict['gratitude_list'].add(elem[0])
 
-
-# async def start_up():
-#     await bot_base.check_db_structure()
-#     await load_from_db()
-#     with open('bot.log', 'a') as log_file:
-#         log_file.write(f'\n========== New bot session {datetime.datetime.now()} ==========\n\n')
-#     print('Стартуем')
-#     await dp.start_polling(bot)
+    for elem in await bot_base.get_chats():
+        settings_dict['chats'].add(elem[0])

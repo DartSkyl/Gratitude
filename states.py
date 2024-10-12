@@ -14,3 +14,6 @@ class AdminStates(StatesGroup):
     balance_reduce = State()
     set_level = State()
     sett_notification = State()
+    interval = State()
+    chat_del = State()
+    chat_add = State()

@@ -1,9 +1,9 @@
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 import logging
-from loader import bot
+from loader import bot, settings_dict
 
-logging.basicConfig()
-logging.getLogger('apscheduler').setLevel(logging.DEBUG)
+# logging.basicConfig()
+# logging.getLogger('apscheduler').setLevel(logging.DEBUG)
 
 
 async def remove_message(chat_id: int, msg_id: int, job_id: str):
@@ -16,7 +16,7 @@ class MessageCleaner:
     """Планировщик, который будет удалять все сообщения от бота через заданное время"""
     def __init__(self):
         self._scheduler = AsyncIOScheduler()
-        self._interval = 1
+        self._interval = settings_dict['interval']
 
     async def start_cleaner(self):
         """Запуск чистильщика"""
@@ -34,6 +34,12 @@ class MessageCleaner:
 
     async def remove_job(self, job_id):
         self._scheduler.remove_job(job_id)
+
+    async def get_interval(self):
+        return self._interval
+
+    async def set_interval(self, new_interval):
+        self._interval = new_interval
 
 
 message_cleaner = MessageCleaner()
