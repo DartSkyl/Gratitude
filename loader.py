@@ -12,6 +12,8 @@ from database import BotBase
 
 bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 dp = Dispatcher(bot=bot, storage=MemoryStorage())
+dp.include_router(admin_router)
+dp.include_router(checker_router)
 bot_base = BotBase()
 status_dict = dict()  # Ключ - необходимое кол-во очков для его достижения, значение - название статуса
 settings_dict = {  # Содержит в себе настройки уведомлений и порога достижений
@@ -44,12 +46,10 @@ async def load_from_db():
         settings_dict['gratitude_list'].add(elem[0])
 
 
-async def start_up():
-    await bot_base.check_db_structure()
-    await load_from_db()
-    dp.include_router(admin_router)
-    dp.include_router(checker_router)
-    with open('bot.log', 'a') as log_file:
-        log_file.write(f'\n========== New bot session {datetime.datetime.now()} ==========\n\n')
-    print('Стартуем')
-    await dp.start_polling(bot)
+# async def start_up():
+#     await bot_base.check_db_structure()
+#     await load_from_db()
+#     with open('bot.log', 'a') as log_file:
+#         log_file.write(f'\n========== New bot session {datetime.datetime.now()} ==========\n\n')
+#     print('Стартуем')
+#     await dp.start_polling(bot)

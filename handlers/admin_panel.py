@@ -8,7 +8,9 @@ from keyboards.admin_reply import *
 from keyboards.admin_inline import *
 from states import AdminStates
 from loader import status_dict, bot_base, settings_dict, bot
-from handlers.gratitude_checker import check_new_status
+from handlers.gratitude_checker import check_new_status, get_username
+from config import CHAT_ID
+from utils.message_cleaner import message_cleaner
 
 
 @admin_router.message(Command('start'))
@@ -155,6 +157,16 @@ async def user_balance_add(msg: Message, state: FSMContext):
         await bot_base.add_points(user['uid'], int(msg.text))
         await msg.answer(f'Пользователю <b>{user["ufn"]}</b> начислено {msg.text} репутации', reply_markup=main_menu)
         await check_new_status(user['uid'])
+
+        for chat in CHAT_ID:  # Ищем юзера по всем чатам и по этим же чатам и отправляем уведомление
+            try:
+                user_name = await get_username(chat, user['uid'])
+                if user_name:
+                    msg_text = f'{user_name}, Вам начислено {msg.text} репутации\n{settings_dict["admin_add"]}'
+                    mess = await bot.send_message(chat_id=chat, text=msg_text)
+                    await message_cleaner.schedule_message_deletion(mess.chat.id, mess.message_id)
+            except Exception as e:
+                print(e)
         await state.clear()
     except ValueError:
         await msg.answer('Ошибка! Введите целое число:')
@@ -167,6 +179,15 @@ async def user_balance_reduce(msg: Message, state: FSMContext):
         user = await state.get_data()
         await bot_base.reduce_user_balance(user['uid'], int(msg.text))
         await msg.answer(f'У пользователя <b>{user["ufn"]}</b> списано {msg.text} очков', reply_markup=main_menu)
+        for chat in CHAT_ID:  # Ищем юзера по всем чатам и по этим же чатам и отправляем уведомление
+            try:
+                user_name = await get_username(chat, user['uid'])
+                if user_name:
+                    msg_text = f'{user_name}, у Вас списано {msg.text} балов\n{settings_dict["admin_reduce"]}'
+                    mess = await bot.send_message(chat_id=chat, text=msg_text)
+                    await message_cleaner.schedule_message_deletion(mess.chat.id, mess.message_id)
+            except Exception as e:
+                print(e)
         await state.clear()
     except ValueError:
         await msg.answer('Ошибка! Введите целое число:')

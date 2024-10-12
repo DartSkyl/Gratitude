@@ -1,12 +1,11 @@
 from aiogram.types import Message, CallbackQuery
 from aiogram import F
-from aiogram.filters import Command
+from aiogram.filters import Command, CommandObject
 from aiogram.fsm.context import FSMContext
+from aiogram.types.chat_member_member import ChatMemberMember
 
-from loader import bot_base, checker_router, status_dict, settings_dict
-
-
-# gratitude_list = ['спасибо', 'благодарю']
+from loader import bot_base, checker_router, status_dict, settings_dict, bot
+from utils.message_cleaner import message_cleaner
 
 
 async def check_new_status(user_id):
@@ -36,10 +35,45 @@ async def check_new_status(user_id):
     return None, ach
 
 
+async def get_username(chat_id, user_id):
+    a = await bot.get_chat_member(chat_id, user_id)
+    if isinstance(a, ChatMemberMember):
+        return ('@' + a.user.username) if a.user.username else a.user.first_name
+    return None
+
+
 @checker_router.message(Command('karma'))
-async def view_user_points_and_status(msg: Message):
+async def view_user_points_and_status(msg: Message, command: CommandObject):
     """Выводим показания очков и статуса"""
-    pass
+    if not msg.reply_to_message:
+        user = await bot_base.get_user_info(msg.from_user.id)
+        # user_name = await get_username(msg.chat.id, msg.from_user.id)
+        msg_text = (f'Ваша репутация: <b>{user[1]}</b>\n'
+                    f'Статус: <i>{user[3] if user[3] != "None" else "Отсутствует"}</i>\n'
+                    f'На счету: <b>{user[2]}</b> баллов')
+        mess = await msg.reply(msg_text)
+        await message_cleaner.schedule_message_deletion(mess.chat.id, mess.message_id)
+    else:
+        user = await bot_base.get_user_info(msg.reply_to_message.from_user.id)
+        user_name = await get_username(msg.chat.id, msg.reply_to_message.from_user.id)
+        msg_text = (f'Статистика {user_name}\nРепутация: <b>{user[1]}</b>\n'
+                    f'Статус: <i>{user[3] if user[3] != "None" else "Отсутствует"}</i>\n'
+                    f'На счету: <b>{user[2]}</b> баллов')
+        mess = await msg.answer(msg_text)
+        await message_cleaner.schedule_message_deletion(mess.chat.id, mess.message_id)
+
+
+@checker_router.message(Command('rating'))
+async def get_rating(msg: Message):
+    """Выдает рейтинг пользователей"""
+    all_users = await bot_base.get_all_users()
+    msg_text = f'Рейтинг чата:\n\n'
+    for u in all_users:
+        user_name = await get_username(msg.chat.id, u[0])
+        if user_name:
+            msg_text += f'{user_name} - {u[1]} репутации, статус <i>{u[3] if u[3] != "None" else "Отсутствует"}</i>\n'
+    mess = await msg.answer(msg_text)
+    await message_cleaner.schedule_message_deletion(mess.chat.id, mess.message_id)
 
 
 @checker_router.message()
@@ -54,5 +88,6 @@ async def check_gratitude_in_message(msg: Message):
             user_status = await check_new_status(user_to_id)
             msg_text = (f'<b>{msg.reply_to_message.from_user.first_name}!</b>\n{settings_dict["new_gratitude"]}\n' +
                         (f"{settings_dict['new_status']}\n" if user_status[0] else '') +
-                        (settings_dict['new_achievement'] if user_status[1] else ''))
-            await msg.reply(msg_text)
+                        (settings_dict['new_achievement'] if user_status[1] else '' + '\nРейтинг чата /rating'))
+            mess = await msg.reply(msg_text)
+            await message_cleaner.schedule_message_deletion(mess.chat.id, mess.message_id)
