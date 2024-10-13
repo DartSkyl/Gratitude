@@ -3,6 +3,7 @@ import time
 from aiogram.types import Message
 from aiogram.filters import Command
 from aiogram.types.chat_member_member import ChatMemberMember
+from aiogram.types.chat_member_left import ChatMemberLeft
 
 from loader import bot_base, checker_router, status_dict, settings_dict, bot
 from utils.message_cleaner import message_cleaner
@@ -37,7 +38,7 @@ async def check_new_status(user_id):
 
 async def get_username(chat_id, user_id):
     a = await bot.get_chat_member(chat_id, user_id)
-    if isinstance(a, ChatMemberMember):
+    if not isinstance(a, ChatMemberLeft):
         return ('@' + a.user.username) if a.user.username else a.user.first_name
     return None
 
