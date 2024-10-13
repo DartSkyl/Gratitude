@@ -147,13 +147,6 @@ async def check_gratitude_in_message(msg: Message):
     """Основная функция, которая будет проверять есть ли благодарность в сообщении"""
     try:
         if msg.reply_to_message:
-
-            # # Антиспам проверяет, что бы с последней благодарности было не больше 60 секунд
-            # last = anti_spam_dict.get(msg.reply_to_message.from_user.id, 0)
-            # last = int(time.time()) - last
-            # if last >= 60:
-            #     user_id = msg.from_user.id  # Кто благодарит
-            #     user_to_id = msg.reply_to_message.from_user.id  # Кого благодарит
             user_id = msg.from_user.id  # Кто благодарит
             user_to_id = msg.reply_to_message.from_user.id  # Кого благодарит
             if any(word in msg.text.lower() for word in settings_dict['gratitude_list']) and user_id != user_to_id:
