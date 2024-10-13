@@ -125,7 +125,7 @@ async def get_rating(msg: Message):
     for u in all_users:
         user_name = await get_username(msg.chat.id, u[0])
         if user_name:
-            msg_text += f'{escape_special_chars(user_name)} \- {u[1]} репутации, статус {u[3] if u[3] != "None" else "Отсутствует"}\n'
+            msg_text += f'{escape_special_chars(user_name)} \- {u[1]} репутации, статус {u[3] if u[3] else "Отсутствует"}\n'
     mess = await msg.answer(msg_text)
     await message_cleaner.schedule_message_deletion(mess.chat.id, mess.message_id)
 
