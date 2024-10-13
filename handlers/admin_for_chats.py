@@ -21,7 +21,7 @@ async def add_points_for_user_in_chat(msg: Message, command: CommandObject):
                         user_name=user_name,
                         user_rep=user[1],
                         user_points=user[2],
-                        user_status=user_status if user_status else "Отсутствует",
+                        user_status=user_status if user_status != "None" else "Отсутствует",
                         add_points=int(command.args) if command.args else 1,
                         reduce_points=0
                     )}"""
@@ -40,9 +40,16 @@ async def reduce_from_the_user(msg: Message, command: CommandObject):
         try:
             user_id = msg.reply_to_message.from_user.id
             await bot_base.reduce_user_balance(user_id, int(command.args) if command.args else 1)
-            msg_text = escape_special_chars(f'{msg.reply_to_message.from_user.first_name}, '
-                        f'Баллы - {command.args if command.args else 1}!'
-                        f'\n{settings_dict["admin_reduce"]}\n\nРейтинг чата /rating')
+            user = await bot_base.get_user_info(user_id)
+            user_name = await get_username(msg.chat.id, user_id)
+            msg_text = settings_dict["admin_reduce"].format(
+                        user_name=escape_special_chars(user_name),
+                        user_rep=user[1],
+                        user_points=user[2],
+                        user_status=user[3] if user[3] != "None" else "Отсутствует",
+                        add_points=0,
+                        reduce_points=int(command.args) if command.args else 1
+                    )
             mess = await msg.reply(msg_text)
             await message_cleaner.schedule_message_deletion(mess.chat.id, mess.message_id)
         except ValueError:
