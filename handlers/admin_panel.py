@@ -410,8 +410,8 @@ async def catch_new_text_for_notification(msg: Message, state: FSMContext):
         )
 
         await bot_base.set_new_setting(notif, new_notif_text)
-        await msg.answer('Текст уведомления изменен\!', reply_markup=notification_setting)
-        await msg.answer(msg_text, reply_markup=main_menu)
+        await msg.answer('Текст уведомления изменен\!', reply_markup=main_menu)
+        await msg.answer(msg_text, reply_markup=notification_setting)
         await state.clear()
     except Exception as e:
         await msg.answer('Ошибка вода\!')
