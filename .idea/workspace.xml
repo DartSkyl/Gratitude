@@ -6,11 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="9800e5bd-21d1-4780-bc02-9625d93be686" name="Changes" comment="-||-">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/database.py" beforeDir="false" afterPath="$PROJECT_DIR$/database.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gratitude.service" beforeDir="false" afterPath="$PROJECT_DIR$/gratitude.service" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/handlers/admin_panel.py" beforeDir="false" afterPath="$PROJECT_DIR$/handlers/admin_panel.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/handlers/gratitude_checker.py" beforeDir="false" afterPath="$PROJECT_DIR$/handlers/gratitude_checker.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/keyboards/admin_inline.py" beforeDir="false" afterPath="$PROJECT_DIR$/keyboards/admin_inline.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -251,7 +246,23 @@
       <option name="project" value="LOCAL" />
       <updated>1728769930657</updated>
     </task>
-    <option name="localTasksCounter" value="15" />
+    <task id="LOCAL-00015" summary="-||-">
+      <option name="closed" value="true" />
+      <created>1728800391754</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1728800391754</updated>
+    </task>
+    <task id="LOCAL-00016" summary="-||-">
+      <option name="closed" value="true" />
+      <created>1728800718315</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1728800718315</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
     <servers />
   </component>
   <component name="UnknownFeatures">

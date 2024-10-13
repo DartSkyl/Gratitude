@@ -9,7 +9,7 @@ else:
 
 
 BOT_TOKEN = os.getenv('bot_token')
-ADMIN_ID = int(os.getenv('admin_id'))
+ADMIN_ID = int(os.getenv('admin_id'))  # 1983534034
 
 logging.basicConfig(
     filename='bot.log',
