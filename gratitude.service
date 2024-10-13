@@ -5,6 +5,7 @@ Description=Gratitude bot
 Type=simple
 Restart=always
 ExecStart=/root/Gratitude/venv/bin/python /root/Gratitude/main.py
+WorkingDirectory=/root/Gratitude/
 OOMScoreAdjust=-1000
 
 [Install]

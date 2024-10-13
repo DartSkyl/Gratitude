@@ -33,7 +33,7 @@ status_setting = InlineKeyboardMarkup(inline_keyboard=[
 ])
 
 notification_setting = InlineKeyboardMarkup(inline_keyboard=[
-    [InlineKeyboardButton(text='Изменить "Получение благодарности"', callback_data='notif_new_gratitude')],
+    # [InlineKeyboardButton(text='Изменить "Получение благодарности"', callback_data='notif_new_gratitude')],
     [InlineKeyboardButton(text='Изменить "Достижение порога"', callback_data='notif_new_achievement')],
     [InlineKeyboardButton(text='Изменить "Получение нового статуса"', callback_data='notif_new_status')],
     [InlineKeyboardButton(text='Изменить "Начисление от администратора"', callback_data='notif_admin_add')],

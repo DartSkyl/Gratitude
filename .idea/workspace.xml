@@ -6,8 +6,11 @@
   <component name="ChangeListManager">
     <list default="true" id="9800e5bd-21d1-4780-bc02-9625d93be686" name="Changes" comment="-||-">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database.py" beforeDir="false" afterPath="$PROJECT_DIR$/database.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gratitude.service" beforeDir="false" afterPath="$PROJECT_DIR$/gratitude.service" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/handlers/admin_panel.py" beforeDir="false" afterPath="$PROJECT_DIR$/handlers/admin_panel.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/handlers/gratitude_checker.py" beforeDir="false" afterPath="$PROJECT_DIR$/handlers/gratitude_checker.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/message_cleaner.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/message_cleaner.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/keyboards/admin_inline.py" beforeDir="false" afterPath="$PROJECT_DIR$/keyboards/admin_inline.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -240,7 +243,15 @@
       <option name="project" value="LOCAL" />
       <updated>1728768069725</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="-||-">
+      <option name="closed" value="true" />
+      <created>1728769930657</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1728769930657</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="UnknownFeatures">

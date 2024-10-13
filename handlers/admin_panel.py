@@ -311,7 +311,7 @@ async def notification_menu(callback: CallbackQuery):
     """Открываем меню доступных уведомлений"""
     await callback.answer()
     msg_text = (f'Установленные текста уведомлений:\n\n'
-                f'<b>Получение благодарности от пользователя</b> - {settings_dict["new_gratitude"]}\n\n'
+                # f'<b>Получение благодарности от пользователя</b> - {settings_dict["new_gratitude"]}\n\n'
                 f'<b>Преодоление порога достижения</b> - {settings_dict["new_achievement"]}\n\n'
                 f'<b>Получение нового статуса</b> - {settings_dict["new_status"]}\n\n'
                 f'<b>Начисление от администратора</b> - {settings_dict["admin_add"]}\n\n'

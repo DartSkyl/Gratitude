@@ -53,7 +53,7 @@ async def view_user_points_and_status(msg: Message):
         try:
             user = await bot_base.get_user_info(msg.from_user.id)
             msg_text = (f'⭐️ Ваша репутация: <b>{user[1]}</b>\n'
-                        f'🎖 Статус: <i>{user[3] if user[3] != "None" else "Отсутствует"}</i>\n'
+                        f'🎖 Статус: <i>{user[3] if user[3] else "Отсутствует"}</i>\n'
                         f'🏵 На счету: <b>{user[2]}</b> баллов')
         except IndexError:
             msg_text = ('⭐️ Ваша репутация: <b>0</b>\n'
@@ -112,15 +112,17 @@ async def check_gratitude_in_message(msg: Message):
             user_id = msg.from_user.id  # Кто благодарит
             user_to_id = msg.reply_to_message.from_user.id  # Кого благодарит
             if any(word in msg.text.lower() for word in settings_dict['gratitude_list']) and user_id != user_to_id:
+                user_name = await get_username(msg.chat.id, user_to_id)
+                user_points = await bot_base.get_user_points(user_to_id)
                 await bot_base.add_points(user_to_id, 1)
                 anti_spam_dict[user_to_id] = int(time.time())
                 # Возвращается кортеж (статус, достижение)
                 user_status = await check_new_status(user_to_id)
-                msg_text = (f'<b><i>{msg.reply_to_message.from_user.first_name}</i>, '
-                            f'Репутация + 1!</b>'
-                            f'\n{settings_dict["new_gratitude"]}\n' +
+                msg_text = (f'Вы повысили репутацию {user_name} на 1 и теперь она '
+                            f'{user_points if user_points else 1}. {user_name}, '
+                            f'спасибо, что помогаете нашему сообществу! 🌹' +
                             (f"{settings_dict['new_status']}\n" if user_status[0] else '') +
-                            (settings_dict['new_achievement'] if user_status[1] else '' + '\nРейтинг чата /rating'))
+                            (settings_dict['new_achievement'] if user_status[1] else '' + f'\nВсего репутация {user_points if user_points else 1}'))
                 mess = await msg.reply(msg_text)
                 await message_cleaner.schedule_message_deletion(mess.chat.id, mess.message_id)
         else:

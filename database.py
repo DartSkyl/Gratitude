@@ -64,6 +64,17 @@ class BotBase:
             return user_info[0]  # Так как база возвращает список картежей
 
     @staticmethod
+    async def get_user_points(user_id: int):
+        """Очки пользователя"""
+        with sqlite3.connect('gratitude.db') as connection:
+            try:
+                cursor = connection.cursor()
+                user_info = cursor.execute(f'SELECT points_count FROM all_users WHERE user_id = {user_id}').fetchall()
+                return user_info[0][0]  # Так как база возвращает список картежей
+            except IndexError:
+                return None
+
+    @staticmethod
     async def get_all_users():
         """Достаем всех юзеров для рейтинга"""
         with sqlite3.connect('gratitude.db') as connection:
