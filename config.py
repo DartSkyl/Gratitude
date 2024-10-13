@@ -10,6 +10,7 @@ else:
 
 BOT_TOKEN = os.getenv('bot_token')
 ADMIN_ID = [int(i) for i in os.getenv('admin_id').split()]
+print(ADMIN_ID)
 
 logging.basicConfig(
     filename='bot.log',
