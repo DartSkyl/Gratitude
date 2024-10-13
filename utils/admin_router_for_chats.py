@@ -12,7 +12,6 @@ class IsAdminFilter(BaseFilter):
         self.admins_id = admin_id
 
     async def __call__(self, message: Message) -> bool:
-        print(message.from_user.id in self.admins_id)
         return message.from_user.id in self.admins_id
 
 

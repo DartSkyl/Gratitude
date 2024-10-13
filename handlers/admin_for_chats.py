@@ -25,7 +25,6 @@ async def add_points_for_user_in_chat(msg: Message, command: CommandObject):
                         add_points=int(command.args) if command.args else 1,
                         reduce_points=0
                     )}"""
-            print(msg_text)
             mess = await msg.reply(msg_text)
             await message_cleaner.schedule_message_deletion(mess.chat.id, mess.message_id)
         except ValueError:
