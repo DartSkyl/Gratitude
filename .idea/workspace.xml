@@ -6,7 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="9800e5bd-21d1-4780-bc02-9625d93be686" name="Changes" comment="-||-">
       <change beforePath="$PROJECT_DIR$/handlers/admin_for_chats.py" beforeDir="false" afterPath="$PROJECT_DIR$/handlers/admin_for_chats.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/handlers/gratitude_checker.py" beforeDir="false" afterPath="$PROJECT_DIR$/handlers/gratitude_checker.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -359,7 +358,15 @@
       <option name="project" value="LOCAL" />
       <updated>1728834463551</updated>
     </task>
-    <option name="localTasksCounter" value="29" />
+    <task id="LOCAL-00029" summary="-||-">
+      <option name="closed" value="true" />
+      <created>1728834897084</created>
+      <option name="number" value="00029" />
+      <option name="presentableId" value="LOCAL-00029" />
+      <option name="project" value="LOCAL" />
+      <updated>1728834897084</updated>
+    </task>
+    <option name="localTasksCounter" value="30" />
     <servers />
   </component>
   <component name="UnknownFeatures">

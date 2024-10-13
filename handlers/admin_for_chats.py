@@ -35,12 +35,13 @@ async def add_points_for_user_in_chat(msg: Message, command: CommandObject):
 @admin_router_for_chats.message(Command('reduce_points'))
 async def reduce_from_the_user(msg: Message, command: CommandObject):
     """Списывание баллов администратором через общий чат"""
+    from handlers.admin_panel import escape_special_chars
     if msg.reply_to_message:
         try:
             user_id = msg.reply_to_message.from_user.id
             await bot_base.reduce_user_balance(user_id, int(command.args) if command.args else 1)
-            msg_text = (f'{msg.reply_to_message.from_user.first_name}, '
-                        f'Баллы \- {command.args if command.args else 1}\!'
+            msg_text = escape_special_chars(f'{msg.reply_to_message.from_user.first_name}, '
+                        f'Баллы - {command.args if command.args else 1}!'
                         f'\n{settings_dict["admin_reduce"]}\n\nРейтинг чата /rating')
             mess = await msg.reply(msg_text)
             await message_cleaner.schedule_message_deletion(mess.chat.id, mess.message_id)
