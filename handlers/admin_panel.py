@@ -382,27 +382,36 @@ async def start_notif_change(callback: CallbackQuery, state: FSMContext):
 async def catch_new_text_for_notification(msg: Message, state: FSMContext):
     """Ловим новый текст уведомления и сохраняем"""
     try:
+        notif = (await state.get_data())['notification']
+        new_notif_text = msg.md_text.replace('\{', '{')
+        new_notif_text = new_notif_text.replace('\}', '}')
+        new_notif_text = new_notif_text.replace('\_', '_')
+        settings_dict[notif] = new_notif_text
+
         user_name = '@UserName'
         user_rep = 10
         user_points = 5
         user_status = 'Царь всея чата'
         add_points = 2
         reduce_points = 3
-        notif = (await state.get_data())['notification']
-        new_notif_text = msg.md_text.replace('\{', '{')
-        new_notif_text = new_notif_text.replace('\}', '}')
-        new_notif_text = new_notif_text.replace('\_', '_')
-        settings_dict[notif] = new_notif_text
-        print(new_notif_text.format(
+        msg_text = (f'Установленные текста уведомлений\n\n'
+                    f'*Получение благодарности от пользователя*\:\n{settings_dict["new_gratitude"]}\n\n'
+                    f'*Преодоление порога достижения*\:\n{settings_dict["new_achievement"]}\n\n'
+                    f'*Получение нового статуса*\:\n{settings_dict["new_status"]}\n\n'
+                    f'*Просмотр статистики*\:\n{settings_dict["karma"]}\n\n'
+                    f'*Начисление от администратора*\:\n{settings_dict["admin_add"]}\n\n'
+                    f'*Списание баллов*\:\n{settings_dict["admin_reduce"]}').format(
             user_name=user_name,
             user_rep=user_rep,
             user_points=user_points,
             user_status=user_status,
             add_points=add_points,
             reduce_points=reduce_points
-        ))
+        )
+
         await bot_base.set_new_setting(notif, new_notif_text)
-        await msg.answer('Текст уведомления изменен\!', reply_markup=main_menu)
+        await msg.answer('Текст уведомления изменен\!', reply_markup=notification_setting)
+        await msg.answer(msg_text, reply_markup=main_menu)
         await state.clear()
     except Exception as e:
         await msg.answer('Ошибка вода\!')
