@@ -11,9 +11,9 @@ else:
 BOT_TOKEN = os.getenv('bot_token')
 ADMIN_ID = [int(i) for i in os.getenv('admin_id').split()]
 
-# logging.basicConfig(
-#     filename='bot.log',
-#     filemode='a',
-#     format="%(asctime)s %(levelname)s %(message)s"
-# )
-# logging.getLogger().setLevel(logging.ERROR)
+logging.basicConfig(
+    filename='bot.log',
+    filemode='a',
+    format="%(asctime)s %(levelname)s %(message)s"
+)
+logging.getLogger().setLevel(logging.ERROR)

@@ -3,7 +3,7 @@ from aiogram.filters import Command, CommandObject
 
 from utils.admin_router_for_chats import admin_router_for_chats
 from loader import bot_base, settings_dict
-from handlers.gratitude_checker import check_new_status
+from handlers.gratitude_checker import check_new_status, get_username
 from utils.message_cleaner import message_cleaner
 
 
@@ -14,10 +14,18 @@ async def add_points_for_user_in_chat(msg: Message, command: CommandObject):
         try:
             user_id = msg.reply_to_message.from_user.id
             await bot_base.add_points(user_id, int(command.args) if command.args else 1)
+            user_name = await get_username(msg.chat.id, msg.reply_to_message.from_user.id)
             user_status = await check_new_status(user_id)
-            msg_text = (f'\n{settings_dict["admin_add"]}\n' +
-                        (f"{settings_dict['new_status']}\n" if user_status[0] else '') +
-                        (settings_dict['new_achievement'] if user_status[1] else ''))
+            user = await bot_base.get_user_info(msg.reply_to_message.from_user.id)
+            msg_text = f"""{settings_dict["admin_add"].format(
+                        user_name=user_name,
+                        user_rep=user[1],
+                        user_points=user[2],
+                        user_status=user_status if user_status else "Отсутствует",
+                        add_points=int(command.args) if command.args else 1,
+                        reduce_points=0
+                    )}"""
+            print(msg_text)
             mess = await msg.reply(msg_text)
             await message_cleaner.schedule_message_deletion(mess.chat.id, mess.message_id)
         except ValueError:
