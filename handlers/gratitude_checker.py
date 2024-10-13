@@ -38,9 +38,11 @@ async def check_new_status(user_id):
 
 async def get_username(chat_id, user_id):
     a = await bot.get_chat_member(chat_id, user_id)
-    if not isinstance(a, ChatMemberLeft):
-        return ('@' + a.user.username) if a.user.username else a.user.first_name
     print(type(a))
+    if not isinstance(a, ChatMemberLeft):
+        print(a.user.username)
+        return ('@' + a.user.username) if a.user.username else a.user.first_name
+    # print(type(a))
     return None
 
 
@@ -51,6 +53,7 @@ anti_spam_dict = {}
 @checker_router.message(Command('karma'))
 async def view_user_points_and_status(msg: Message):
     """Выводим показания очков и статуса"""
+    from handlers.admin_panel import escape_special_chars
     if not msg.reply_to_message:
         try:
             user = await bot_base.get_user_info(msg.from_user.id)
@@ -59,7 +62,7 @@ async def view_user_points_and_status(msg: Message):
             #             f'🎖 Статус: {user[3] if user[3] else "Отсутствует"}\n'
             #             f'🏵 На счету: {user[2]} баллов')
             msg_text = settings_dict['karma'].format(
-                user_name=user_name,
+                user_name=escape_special_chars(user_name),
                 user_rep=user[1],
                 user_points=user[2],
                 user_status=user[3] if user[3] else "Отсутствует",
@@ -72,7 +75,7 @@ async def view_user_points_and_status(msg: Message):
             #             '🏵 На счету: 0 баллов')
             user_name = await get_username(msg.chat.id, msg.from_user.id)
             msg_text = settings_dict['karma'].format(
-                user_name=user_name,
+                user_name=escape_special_chars(user_name),
                 user_rep=0,
                 user_points=0,
                 user_status="Отсутствует",
@@ -92,7 +95,7 @@ async def view_user_points_and_status(msg: Message):
                 user_name=user_name,
                 user_rep=user[1],
                 user_points=user[2],
-                user_status=user[3] if user[3] else "Отсутствует",
+                user_status=user[3] if user[3] != "None" else "Отсутствует",
                 add_points=0,
                 reduce_points=0
             )
