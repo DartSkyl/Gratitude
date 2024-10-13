@@ -92,7 +92,7 @@ async def view_user_points_and_status(msg: Message):
             #             f'🎖 Статус: {user[3] if user[3] != "None" else "Отсутствует"}\n'
             #             f'🏵 На счету: {user[2]} баллов')
             msg_text = settings_dict['karma'].format(
-                user_name=user_name,
+                user_name=escape_special_chars(user_name),
                 user_rep=user[1],
                 user_points=user[2],
                 user_status=user[3] if user[3] != "None" else "Отсутствует",
@@ -104,7 +104,7 @@ async def view_user_points_and_status(msg: Message):
             #             f'🎖 Статус: Отсутствует\n'
             #             f'🏵 На счету: 0 баллов')
             msg_text = settings_dict['karma'].format(
-                user_name=user_name,
+                user_name=escape_special_chars(user_name),
                 user_rep=0,
                 user_points=0,
                 user_status="Отсутствует",
@@ -118,12 +118,13 @@ async def view_user_points_and_status(msg: Message):
 @checker_router.message(Command('rating'))
 async def get_rating(msg: Message):
     """Выдает рейтинг пользователей"""
+    from handlers.admin_panel import escape_special_chars
     all_users = await bot_base.get_all_users()
     msg_text = f'Рейтинг чата:\n\n'
     for u in all_users:
         user_name = await get_username(msg.chat.id, u[0])
         if user_name:
-            msg_text += f'{user_name} \- {u[1]} репутации, статус {u[3] if u[3] != "None" else "Отсутствует"}\n'
+            msg_text += f'{escape_special_chars(user_name)} \- {u[1]} репутации, статус {u[3] if u[3] != "None" else "Отсутствует"}\n'
     mess = await msg.answer(msg_text)
     await message_cleaner.schedule_message_deletion(mess.chat.id, mess.message_id)
 
@@ -156,6 +157,7 @@ async def check_gratitude_in_message(msg: Message):
             user_id = msg.from_user.id  # Кто благодарит
             user_to_id = msg.reply_to_message.from_user.id  # Кого благодарит
             if any(word in msg.text.lower() for word in settings_dict['gratitude_list']) and user_id != user_to_id:
+                from handlers.admin_panel import escape_special_chars
                 # Антиспам проверяет, что бы с последней благодарности было не больше 60 секунд
                 last = anti_spam_dict.get(msg.reply_to_message.from_user.id, 0)
                 last = int(time.time()) - last
@@ -174,7 +176,7 @@ async def check_gratitude_in_message(msg: Message):
                                 (f"{settings_dict['new_status']}\n" if user_status[0] else '') +
                                 (settings_dict['new_achievement'] if user_status[1]
                                  else '')).format(
-                        user_name=user_name,
+                        user_name=escape_special_chars(user_name),
                         user_rep=user_rep,
                         user_points=user_points,
                         user_status=user_status[0],
