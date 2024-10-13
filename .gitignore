@@ -6,3 +6,4 @@ utils/__pycache__/
 /bot.log
 /gratitude.db
 /test.py
+/gratitude_checker.session-journal

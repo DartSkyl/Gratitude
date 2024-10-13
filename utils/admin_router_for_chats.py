@@ -12,7 +12,7 @@ class IsAdminFilter(BaseFilter):
         self.admins_id = admin_id
 
     async def __call__(self, message: Message) -> bool:
-        return message.from_user.id == self.admins_id
+        return message.from_user.id in self.admins_id
 
 
 admin_router_for_chats = Router()

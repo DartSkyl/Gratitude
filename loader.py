@@ -8,9 +8,22 @@ from utils.admin_router import admin_router
 from utils.admin_router_for_chats import admin_router_for_chats
 from utils.checker_router import checker_router
 from database import BotBase
+from pyrogram import Client
+
+api_id = 22761163
+api_hash = "8b23c6b5877145fc046a0752a7cd20ac"
+py_bot = '7901150176:AAES5lZ_6U-iEZ-iC2D0-91MP78DlvkFLAo'
+
+app = Client("gratitude_checker")
 
 
-bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+async def app_run():
+    await app.start()
+
+
+bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties(
+    parse_mode=ParseMode.MARKDOWN_V2
+))
 dp = Dispatcher(bot=bot, storage=MemoryStorage())
 dp.include_router(admin_router)
 dp.include_router(admin_router_for_chats)
@@ -19,11 +32,15 @@ bot_base = BotBase()
 status_dict = dict()  # Ключ - необходимое кол-во очков для его достижения, значение - название статуса
 settings_dict = {  # Содержит в себе настройки уведомлений и порога достижений
     'achievement': 5,
-    'new_gratitude': 'Вас поблагодарили!\nВаша репутация возросла!',
+    'new_gratitude': 'Вы повысили репутацию {user_name} на 1 и теперь она {user_points}\. {user_name}\, '
+                     'спасибо\, что помогаете нашему сообществу 🌹',
     'new_achievement': 'Вы получили новое достижение',
-    'new_status': 'Вы достигли нового статуса!',
-    'admin_add': 'Администрация благодарит Вас за активное участие!',
-    'admin_reduce': 'С вашего баланса были списаны очки!',
+    'new_status': 'Вы достигли нового статуса {user_status}',
+    'admin_add': 'Администрация благодарит Вас за активное участие\nРепутация \+ {add_points}',
+    'admin_reduce': 'С вашего баланса были списаны баллы в размере {reduce_points}',
+    'karma': 'Статистика {user_name}\n⭐️ Репутация: {user_rep}\n'
+             '🎖 Статус: {user_status}\n'
+             '🏵 На счету: {user_points} баллов',
     'gratitude_list': {'спасибо', 'благодарю'},
     'interval': 3,
     'chats': set()
