@@ -1,6 +1,6 @@
 from aiogram.types import Message, CallbackQuery
 from aiogram import F
-from aiogram.filters import Command
+from aiogram.filters import Command, CommandObject
 from aiogram.fsm.context import FSMContext
 
 from utils.admin_router import admin_router
@@ -361,7 +361,6 @@ async def notification_menu(callback: CallbackQuery):
         add_points=2,
         reduce_points=3
     )
-    print(msg_text)
     await callback.message.answer(msg_text, reply_markup=notification_setting)
 
 
@@ -462,4 +461,20 @@ async def remove_gratitude(msg: Message, state: FSMContext):
         msg_text += word + '\n'
     await msg.answer(msg_text)
     await state.clear()
+
+
+@admin_router.message(Command('get_settings'))
+async def output_settings_from_db(msg: Message, command: CommandObject):
+    """Выводит список настроек из БД (отладочная функция)"""
+    if not command.args:
+        settings_list = await bot_base.get_all_settings()
+        msg_text = ''
+        for s in settings_list:
+            msg_text += f'{s[0]}: {s[1]}\n\n'
+        await msg.answer(escape_special_chars(msg_text))
+    else:
+        try:
+            await bot_base.drop_setting(command.args)
+        except Exception as e:
+            await msg.answer(str(e))
 

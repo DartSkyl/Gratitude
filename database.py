@@ -151,6 +151,14 @@ class BotBase:
             connection.commit()
 
     @staticmethod
+    async def drop_setting(set_name: str):
+        """Удаляем настройку"""
+        with sqlite3.connect('gratitude.db') as connection:
+            cursor = connection.cursor()
+            cursor.execute(f'DELETE FROM settings WHERE set_name = "{set_name}";')
+            connection.commit()
+
+    @staticmethod
     async def get_all_settings():
         """Достаем все настройки"""
         with sqlite3.connect('gratitude.db') as connection:
