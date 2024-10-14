@@ -71,7 +71,7 @@ async def view_user_points_and_status(msg: Message):
                     user_name=escape_special_chars(user_name),
                     user_rep=user[1],
                     user_points=user[2],
-                    user_status=user[3] if user[3] else "Отсутствует",
+                    user_status=user[3] if user[3] != "None" else "Отсутствует",
                     add_points=0,
                     reduce_points=0
                 )
