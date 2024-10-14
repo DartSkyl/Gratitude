@@ -15,9 +15,9 @@ api_hash = "8b23c6b5877145fc046a0752a7cd20ac"
 py_bot = '7901150176:AAES5lZ_6U-iEZ-iC2D0-91MP78DlvkFLAo'
 
 app = Client("gratitude_checker",
-             # api_id=api_id,
-             # api_hash=api_hash,
-             # bot_token=py_bot
+             api_id=api_id,
+             api_hash=api_hash,
+             bot_token=py_bot
              )
 
 
