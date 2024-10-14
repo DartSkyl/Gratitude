@@ -361,6 +361,7 @@ async def notification_menu(callback: CallbackQuery):
         add_points=2,
         reduce_points=3
     )
+    print(msg_text)
     await callback.message.answer(msg_text, reply_markup=notification_setting)
 
 
@@ -397,7 +398,6 @@ async def catch_new_text_for_notification(msg: Message, state: FSMContext):
             add_points=2,
             reduce_points=3
         )
-
         await bot_base.set_new_setting(notif, new_notif_text)
         await msg.answer('Текст уведомления изменен\!', reply_markup=main_menu)
         await msg.answer(msg_text, reply_markup=notification_setting)
