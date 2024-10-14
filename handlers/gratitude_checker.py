@@ -198,9 +198,12 @@ async def check_gratitude_in_message(msg: Message):
                         await message_cleaner.schedule_message_deletion(mess.chat.id, mess.message_id)
                 else:
                     if any(word in msg.text.lower() for word in settings_dict['gratitude_list']):
+                        if 'спасибо за помощь' in msg.text.lower():
+                            add_points = 2
+                        else:
+                            add_points = 1
                         user_name = await get_username(msg.chat.id, user_to_id)
-                        await bot_base.add_points(user_to_id, 2)
-                        # user_points = await bot_base.get_user_points(user_to_id)
+                        await bot_base.add_points(user_to_id, add_points)
                         user = await bot_base.get_user_info(user_to_id)
                         user_rep = user[1]
                         user_points = user[2]
@@ -213,7 +216,7 @@ async def check_gratitude_in_message(msg: Message):
                             user_rep=user_rep,
                             user_points=user_points,
                             user_status=user_status[0],
-                            add_points=2,
+                            add_points=add_points,
                             reduce_points=0
                         )
                         mess = await msg.reply(msg_text)
