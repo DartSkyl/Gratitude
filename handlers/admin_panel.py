@@ -246,7 +246,8 @@ async def user_balance_manipulation(callback: CallbackQuery, state: FSMContext):
     await callback.answer()
     action_dict = {
         'balance_add': (AdminStates.balance_add, 'Введите количество репутации которое хотите добавить\:'),
-        'balance_reduce': (AdminStates.balance_reduce, 'Введите количество очков для списания\:')
+        'balance_reduce': (AdminStates.balance_reduce, 'Введите количество баллов для списания\:'),
+        'balance_rep_reduce': (AdminStates.balance_rep_reduce, 'Введите количество репутации для списания\:')
     }
     await callback.message.answer(action_dict[callback.data][1], reply_markup=cancel_button)
     await state.set_state(action_dict[callback.data][0])
@@ -257,14 +258,15 @@ async def user_balance_add(msg: Message, state: FSMContext):
     """Добавление баланса пользователю"""
     try:
         user = await state.get_data()
-        await bot_base.add_points(user['uid'], int(msg.text))
+        user_id = (await state.get_data())['uid']
+        await bot_base.add_points(user_id, int(msg.text))
         await msg.answer(f'Пользователю {user["ufn"]} начислено {msg.text} репутации', reply_markup=main_menu)
-        await check_new_status(user['uid'])
+        await check_new_status(user_id)
 
         for chat in settings_dict['chats']:  # Ищем юзера по всем чатам и по этим же чатам и отправляем уведомление
             try:
-                user_name = await get_username(chat, user['uid'])
-                user = await bot_base.get_user_info(user['uid'])
+                user_name = await get_username(chat, user_id)
+                user = await bot_base.get_user_info(user_id)
                 if user_name:
                     msg_text = f"""{settings_dict["admin_add"].format(
                         user_name=user_name,
@@ -288,12 +290,13 @@ async def user_balance_reduce(msg: Message, state: FSMContext):
     """Списание балов с баланса пользователя"""
     try:
         user = await state.get_data()
-        await bot_base.reduce_user_balance(user['uid'], int(msg.text))
+        user_id = (await state.get_data())['uid']
+        await bot_base.reduce_user_balance(user_id, int(msg.text))
         await msg.answer(f'У пользователя {user["ufn"]} списано {msg.text} очков', reply_markup=main_menu)
         for chat in settings_dict['chats']:  # Ищем юзера по всем чатам и по этим же чатам и отправляем уведомление
             try:
-                user_name = await get_username(chat, user['uid'])
-                user = await bot_base.get_user_info(user['uid'])
+                user_name = await get_username(chat, user_id)
+                user = await bot_base.get_user_info(user_id)
                 if user_name:
                     msg_text = f"""{settings_dict["admin_reduce"].format(
                         user_name=user_name,
@@ -307,6 +310,38 @@ async def user_balance_reduce(msg: Message, state: FSMContext):
                     await message_cleaner.schedule_message_deletion(mess.chat.id, mess.message_id)
             except Exception as e:
                 print(e)
+        await state.clear()
+    except ValueError:
+        await msg.answer('Ошибка\! Введите целое число\:')
+
+
+@admin_router.message(AdminStates.balance_rep_reduce)
+async def reduce_reputation(msg: Message, state: FSMContext):
+    """Списание репутации с баланса пользователя"""
+    try:
+        from handlers.gratitude_checker import check_new_status
+        user = await state.get_data()
+        user_id = (await state.get_data())['uid']
+        await bot_base.reduce_reputation(user_id, int(msg.text))
+        await check_new_status(user_id)
+        await msg.answer(f'У пользователя {user["ufn"]} списано {msg.text} репутации', reply_markup=main_menu)
+        for chat in settings_dict['chats']:  # Ищем юзера по всем чатам и по этим же чатам и отправляем уведомление
+            try:
+                user_name = await get_username(chat, user_id)
+                user = await bot_base.get_user_info(user_id)
+                if user_name:
+                    msg_text = f"""{settings_dict["admin_rep_reduce"].format(
+                        user_name=user_name,
+                        user_rep=user[1],
+                        user_points=user[2],
+                        user_status=user[3] if user[3] else "Отсутствует",
+                        add_points=0,
+                        reduce_points=msg.text
+                    )}"""
+                    mess = await bot.send_message(chat_id=chat, text=msg_text)
+                    await message_cleaner.schedule_message_deletion(mess.chat.id, mess.message_id)
+            except Exception as e:
+                print(e, e.args)
         await state.clear()
     except ValueError:
         await msg.answer('Ошибка\! Введите целое число\:')
@@ -353,6 +388,7 @@ async def notification_menu(callback: CallbackQuery):
                 f'*Просмотр статистики*\:\n{settings_dict["karma"]}\n\n'
                 f'*Начисление от администратора*\:\n{settings_dict["admin_add"]}\n\n'
                 f'*Рейтинг чата*\:\n{settings_dict["rating"]}\n\n'
+                f'*Списание репутации*\:\n{settings_dict["admin_rep_reduce"]}\n\n'
                 f'*Списание баллов*\:\n{settings_dict["admin_reduce"]}').format(
         user_name='@UserName',
         user_rep=10,
@@ -389,6 +425,7 @@ async def catch_new_text_for_notification(msg: Message, state: FSMContext):
                     f'*Просмотр статистики*\:\n{settings_dict["karma"]}\n\n'
                     f'*Начисление от администратора*\:\n{settings_dict["admin_add"]}\n\n'
                     f'*Рейтинг чата*\:\n{settings_dict["rating"]}\n\n'
+                    f'*Списание репутации*\:\n{settings_dict["admin_rep_reduce"]}\n\n'
                     f'*Списание баллов*\:\n{settings_dict["admin_reduce"]}').format(
             user_name='@UserName',
             user_rep=10,
@@ -477,4 +514,3 @@ async def output_settings_from_db(msg: Message, command: CommandObject):
             await bot_base.drop_setting(command.args)
         except Exception as e:
             await msg.answer(str(e))
-

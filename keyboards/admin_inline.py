@@ -39,6 +39,7 @@ notification_setting = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text='Изменить "Просмотр статистики"', callback_data='notif_karma')],
     [InlineKeyboardButton(text='Изменить "Начисление от администратора"', callback_data='notif_admin_add')],
     [InlineKeyboardButton(text='Изменить "Рейтинг чата"', callback_data='notif_rating')],
+    [InlineKeyboardButton(text='Изменить "Списание репутации администратором"', callback_data='notif_admin_rep_reduce')],
     [InlineKeyboardButton(text='Изменить "Списание балов администратором"', callback_data='notif_admin_reduce')]
 ])
 
@@ -62,5 +63,6 @@ async def view_status_list(status_dict: dict):
 
 balance_menu = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text='Начислить очки', callback_data='balance_add')],
-    [InlineKeyboardButton(text='Списать очки', callback_data='balance_reduce')]
+    [InlineKeyboardButton(text='Списать очки', callback_data='balance_reduce')],
+    [InlineKeyboardButton(text='Списать репутацию', callback_data='balance_rep_reduce')]
 ])

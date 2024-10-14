@@ -14,7 +14,11 @@ api_id = 22761163
 api_hash = "8b23c6b5877145fc046a0752a7cd20ac"
 py_bot = '7901150176:AAES5lZ_6U-iEZ-iC2D0-91MP78DlvkFLAo'
 
-app = Client("gratitude_checker")
+app = Client("gratitude_checker",
+             # api_id=api_id,
+             # api_hash=api_hash,
+             # bot_token=py_bot
+             )
 
 
 async def app_run():
@@ -37,11 +41,12 @@ settings_dict = {  # Содержит в себе настройки уведо�
     'new_achievement': 'Вы получили новое достижение',
     'new_status': 'Вы достигли нового статуса {user_status}',
     'admin_add': 'Администрация благодарит Вас за активное участие\nРепутация \+ {add_points}',
-    'admin_reduce': 'С вашего баланса были списаны баллы в размере {reduce_points}',
+    'admin_reduce': '{user_name}, С вашего баланса были списаны баллы в размере {reduce_points}',
     'karma': 'Статистика {user_name}\n⭐️ Репутация: {user_rep}\n'
              '🎖 Статус: {user_status}\n'
              '🏵 На счету: {user_points} баллов',
     'rating': '{user_name} \- {user_rep} репутации, статус {user_status}\n',
+    'admin_rep_reduce': '{user_name}, С вашего баланса были списана репутация в размере {reduce_points}',
     'gratitude_list': {'спасибо', 'благодарю'},
     'interval': 3,
     'chats': set()

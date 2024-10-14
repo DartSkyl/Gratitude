@@ -47,6 +47,15 @@ class BotBase:
             connection.commit()
 
     @staticmethod
+    async def reduce_reputation(user_id: int, rep: int):
+        with sqlite3.connect('gratitude.db') as connection:
+            """Списание репутации"""
+            cursor = connection.cursor()
+            cursor.execute(f'UPDATE all_users SET points_count = all_users.points_count - {rep} '
+                           f'WHERE user_id = {user_id};')
+            connection.commit()
+
+    @staticmethod
     async def drop_user(user_id: int):
         """Удаляем из базы того, кто покинул чат"""
         with sqlite3.connect('gratitude.db') as connection:

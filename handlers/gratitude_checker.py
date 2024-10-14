@@ -33,9 +33,14 @@ async def check_new_status(user_id):
                 await bot_base.set_user_status(user_id, status_dict[c])
                 return status_dict[c], ach
     else:
-        if c > 0 and user_to_status != status_dict[c]:  # Значит получен новый статус
-            await bot_base.set_user_status(user_id, status_dict[c])
-            return status_dict[c], ach
+        try:  # Просто психанул
+            if c > 0 and user_to_status != status_dict[c]:  # Значит получен новый статус
+                await bot_base.set_user_status(user_id, status_dict[c])
+                return status_dict[c], ach
+            elif user_to_status != status_dict[c]:
+                await bot_base.set_user_status(user_id, 'None')
+        except KeyError:
+            await bot_base.set_user_status(user_id, 'None')
     return None, ach
 
 
@@ -70,6 +75,7 @@ async def view_user_points_and_status(msg: Message):
                     add_points=0,
                     reduce_points=0
                 )
+                print(user[3] if user[3] else "Отсутствует")
             except IndexError:
                 user_name = await get_username(msg.chat.id, msg.from_user.id)
                 msg_text = settings_dict['karma'].format(
@@ -126,6 +132,7 @@ async def get_rating(msg: Message):
                 add_points=0,
                 reduce_points=0
             )
+            msg_text += '\n'
     mess = await msg.answer(msg_text)
     await message_cleaner.schedule_message_deletion(mess.chat.id, mess.message_id)
 

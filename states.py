@@ -12,6 +12,7 @@ class AdminStates(StatesGroup):
     select_user = State()
     balance_add = State()
     balance_reduce = State()
+    balance_rep_reduce = State()
     set_level = State()
     sett_notification = State()
     interval = State()
