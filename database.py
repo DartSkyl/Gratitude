@@ -47,6 +47,14 @@ class BotBase:
             connection.commit()
 
     @staticmethod
+    async def drop_user(user_id: int):
+        """Удаляем из базы того, кто покинул чат"""
+        with sqlite3.connect('gratitude.db') as connection:
+            cursor = connection.cursor()
+            cursor.execute(f'DELETE FROM all_users WHERE user_id = {user_id};')
+            connection.commit()
+
+    @staticmethod
     async def reduce_user_balance(user_id: int, points: int):
         """Списание очков с баланса пользователя """
         with sqlite3.connect('gratitude.db') as connection:

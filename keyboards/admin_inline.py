@@ -38,6 +38,7 @@ notification_setting = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text='Изменить "Получение нового статуса"', callback_data='notif_new_status')],
     [InlineKeyboardButton(text='Изменить "Просмотр статистики"', callback_data='notif_karma')],
     [InlineKeyboardButton(text='Изменить "Начисление от администратора"', callback_data='notif_admin_add')],
+    [InlineKeyboardButton(text='Изменить "Рейтинг чата"', callback_data='notif_rating')],
     [InlineKeyboardButton(text='Изменить "Списание балов администратором"', callback_data='notif_admin_reduce')]
 ])
 
