@@ -514,3 +514,21 @@ async def output_settings_from_db(msg: Message, command: CommandObject):
             await bot_base.drop_setting(command.args)
         except Exception as e:
             await msg.answer(str(e))
+
+
+@admin_router.message(Command('delete_user'))
+async def remove_left_user_from_db(msg: Message, command: CommandObject):
+    """Удаление записи из базы"""
+    if command.args:
+        try:
+            await app_run()
+        except ConnectionError:
+            pass
+        user_id = (await app.get_users(command.args)).id
+        try:
+            await bot_base.drop_user(user_id)
+            await msg.answer('Пользователь удален')
+        except Exception as e:
+            print(e)
+            await msg.answer('Проверьте правильность @username')
+

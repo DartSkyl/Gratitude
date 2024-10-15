@@ -2,10 +2,9 @@ import time
 
 from aiogram.types import Message
 from aiogram.filters import Command
-from aiogram.types.chat_member_member import ChatMemberMember
 from aiogram.types.chat_member_left import ChatMemberLeft
 from aiogram.types import ChatMember
-from aiogram.filters import ChatMemberUpdatedFilter, IS_NOT_MEMBER, ADMINISTRATOR, MEMBER
+from aiogram.filters import ChatMemberUpdatedFilter, IS_NOT_MEMBER,MEMBER
 
 from loader import bot_base, checker_router, status_dict, settings_dict, bot, dp
 from utils.message_cleaner import message_cleaner
@@ -75,7 +74,6 @@ async def view_user_points_and_status(msg: Message):
                     add_points=0,
                     reduce_points=0
                 )
-                print(user[3] if user[3] else "Отсутствует")
             except IndexError:
                 user_name = await get_username(msg.chat.id, msg.from_user.id)
                 msg_text = settings_dict['karma'].format(
