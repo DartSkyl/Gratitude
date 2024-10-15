@@ -205,15 +205,17 @@ async def check_gratitude_in_message(msg: Message):
                     if any(word in msg.text.lower() for word in settings_dict['gratitude_list']):
                         if 'спасибо за помощь' in msg.text.lower():
                             add_points = 2
+                            gratitude_text = settings_dict["admin_add"]
                         else:
                             add_points = 1
+                            gratitude_text = settings_dict["new_gratitude"]
                         user_name = await get_username(msg.chat.id, user_to_id)
                         await bot_base.add_points(user_to_id, add_points)
                         user = await bot_base.get_user_info(user_to_id)
                         user_rep = user[1]
                         user_points = user[2]
                         user_status = await check_new_status(user_to_id)
-                        msg_text = (f'{settings_dict["admin_add"]}' +
+                        msg_text = (f'{gratitude_text}' +
                                     (f"{settings_dict['new_status']}\n" if user_status[0] else '') +
                                     (settings_dict['new_achievement'] if user_status[1]
                                      else '')).format(
