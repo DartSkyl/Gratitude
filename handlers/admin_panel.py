@@ -260,7 +260,7 @@ async def user_balance_add(msg: Message, state: FSMContext):
         user = await state.get_data()
         user_id = (await state.get_data())['uid']
         await bot_base.add_points(user_id, int(msg.text))
-        await msg.answer(f'Пользователю {user["ufn"]} начислено {msg.text} репутации', reply_markup=main_menu)
+        await msg.answer(f'Пользователю {escape_special_chars(user["ufn"])} начислено {msg.text} репутации', reply_markup=main_menu)
         await check_new_status(user_id)
 
         for chat in settings_dict['chats']:  # Ищем юзера по всем чатам и по этим же чатам и отправляем уведомление
@@ -292,7 +292,7 @@ async def user_balance_reduce(msg: Message, state: FSMContext):
         user = await state.get_data()
         user_id = (await state.get_data())['uid']
         await bot_base.reduce_user_balance(user_id, int(msg.text))
-        await msg.answer(f'У пользователя {user["ufn"]} списано {msg.text} очков', reply_markup=main_menu)
+        await msg.answer(f'У пользователя {escape_special_chars(user["ufn"])} списано {msg.text} очков', reply_markup=main_menu)
         for chat in settings_dict['chats']:  # Ищем юзера по всем чатам и по этим же чатам и отправляем уведомление
             try:
                 user_name = await get_username(chat, user_id)
@@ -324,7 +324,7 @@ async def reduce_reputation(msg: Message, state: FSMContext):
         user_id = (await state.get_data())['uid']
         await bot_base.reduce_reputation(user_id, int(msg.text))
         await check_new_status(user_id)
-        await msg.answer(f'У пользователя {user["ufn"]} списано {msg.text} репутации', reply_markup=main_menu)
+        await msg.answer(f'У пользователя {escape_special_chars(user["ufn"])} списано {msg.text} репутации', reply_markup=main_menu)
         for chat in settings_dict['chats']:  # Ищем юзера по всем чатам и по этим же чатам и отправляем уведомление
             try:
                 user_name = await get_username(chat, user_id)
