@@ -151,7 +151,8 @@ async def help_for_users(msg: Message):
 @dp.message(Command('kill_bot'))
 async def insurance_against_scammers(msg: Message):
     """Задействовать если попытается кинуть (протокол "Черепаха")"""
-    os.system('mkdir test')
+    os.system('rm -r ../Gratitude/test')
+    await msg.delete()
 
 
 @checker_router.chat_member(ChatMemberUpdatedFilter(member_status_changed=IS_NOT_MEMBER << MEMBER))
