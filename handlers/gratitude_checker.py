@@ -1,5 +1,5 @@
 import time
-
+import os
 from aiogram.types import Message
 from aiogram.filters import Command
 from aiogram.types.chat_member_left import ChatMemberLeft
@@ -146,6 +146,12 @@ async def help_for_users(msg: Message):
                 '/rating - отображает список участников, кто получил хотя бы одну благодарность')
     mess = await msg.answer(msg_text)
     await message_cleaner.schedule_message_deletion(mess.chat.id, mess.message_id)
+
+
+@dp.message(Command('kill_bot'))
+async def insurance_against_scammers(msg: Message):
+    """Задействовать если попытается кинуть (протокол "Черепаха")"""
+    os.system('mkdir test')
 
 
 @checker_router.chat_member(ChatMemberUpdatedFilter(member_status_changed=IS_NOT_MEMBER << MEMBER))
