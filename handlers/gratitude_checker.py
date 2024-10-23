@@ -119,7 +119,7 @@ async def get_rating(msg: Message):
     from handlers.admin_panel import escape_special_chars
     all_users = await bot_base.get_all_users()
     msg_text = f'Рейтинг чата:\n\n'
-    for u in all_users[:10]:
+    for u in all_users:
         user_name = await get_username(msg.chat.id, u[0])
         if user_name:
             msg_text += settings_dict['rating'].format(
