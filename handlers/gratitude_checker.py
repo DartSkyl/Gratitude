@@ -138,7 +138,7 @@ async def get_rating(msg: Message):
         user_name = await get_user_name_for_rating(msg.chat.id, u[0])
         if user_name and count < 10:
             count += 1
-            msg_text += str(count) + '\.' + settings_dict['rating'].format(
+            msg_text += str(count) + '\. ' + settings_dict['rating'].format(
                 user_name=escape_special_chars(user_name),
                 user_rep=u[1],
                 user_points=u[2],
