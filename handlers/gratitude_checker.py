@@ -45,11 +45,8 @@ async def check_new_status(user_id):
 
 async def get_username(chat_id, user_id):
     a = await bot.get_chat_member(chat_id, user_id)
-    print(type(a))
     if not isinstance(a, ChatMemberLeft):
-        print(a.user.username)
         return ('@' + a.user.username) if a.user.username else a.user.first_name
-    # print(type(a))
     return None
 
 
@@ -119,6 +116,8 @@ async def get_rating(msg: Message):
     from handlers.admin_panel import escape_special_chars
     all_users = await bot_base.get_all_users()
     msg_text = f'Рейтинг чата:\n\n'
+    with open('bot.log', 'a') as file:
+        file.write(str(all_users) + '\n')
     for u in all_users:
         user_name = await get_username(msg.chat.id, u[0])
         if user_name:
