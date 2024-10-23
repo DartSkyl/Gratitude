@@ -96,7 +96,7 @@ class BotBase:
         """Достаем всех юзеров для рейтинга"""
         with sqlite3.connect('gratitude.db') as connection:
             cursor = connection.cursor()
-            user_info = cursor.execute(f'SELECT * FROM all_users ORDER BY points_count DESC LIMIT 10').fetchall()
+            user_info = cursor.execute(f'SELECT * FROM all_users ORDER BY points_count DESC').fetchall()
             return user_info
 
     @staticmethod
