@@ -44,10 +44,14 @@ async def check_new_status(user_id):
 
 
 async def get_username(chat_id, user_id):
-    a = await bot.get_chat_member(chat_id, user_id)
-    if not isinstance(a, ChatMemberLeft):
-        return ('@' + a.user.username) if a.user.username else a.user.first_name
-    return None
+    try:
+        a = await bot.get_chat_member(chat_id, user_id)
+        if not isinstance(a, ChatMemberLeft):
+            return ('@' + a.user.username) if a.user.username else a.user.first_name
+        return None
+    except Exception as e:
+        with open('bot.log', 'a') as file:
+            file.write(str(user_id) + str(e) + '\n')
 
 
 # Ключ - id пользователя, значение - время последней благодарности в секундах (unix)
