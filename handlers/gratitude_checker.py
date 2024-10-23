@@ -54,6 +54,17 @@ async def get_username(chat_id, user_id):
             file.write(str(user_id) + str(e) + '\n')
 
 
+async def get_user_name_for_rating(chat_id, user_id):
+    try:
+        a = await bot.get_chat_member(chat_id, user_id)
+        if not isinstance(a, ChatMemberLeft):
+            return ('@' + a.user.username) if a.user.username else a.user.first_name
+        return None
+    except Exception as e:
+        with open('bot.log', 'a') as file:
+            file.write(str(user_id) + str(e) + '\n')
+        return None
+
 # Ключ - id пользователя, значение - время последней благодарности в секундах (unix)
 anti_spam_dict = {}
 
@@ -119,12 +130,13 @@ async def get_rating(msg: Message):
     """Выдает рейтинг пользователей"""
     from handlers.admin_panel import escape_special_chars
     all_users = await bot_base.get_all_users()
+    count = 0
     msg_text = f'Рейтинг чата:\n\n'
     with open('bot.log', 'a') as file:
-        file.write(str(all_users) + '\n')
+        file.write(str(len(all_users)) + '\n')
     for u in all_users:
-        user_name = await get_username(msg.chat.id, u[0])
-        if user_name:
+        user_name = await get_user_name_for_rating(msg.chat.id, u[0])
+        if user_name and count <= 10:
             msg_text += settings_dict['rating'].format(
                 user_name=escape_special_chars(user_name),
                 user_rep=u[1],
@@ -134,6 +146,7 @@ async def get_rating(msg: Message):
                 reduce_points=0
             )
             msg_text += '\n'
+            count += 1
     mess = await msg.answer(msg_text)
     await message_cleaner.schedule_message_deletion(mess.chat.id, mess.message_id)
 
