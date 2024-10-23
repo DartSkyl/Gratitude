@@ -13,7 +13,7 @@ async def start_up():
     await message_cleaner.start_cleaner()
     await bot.set_my_commands([
         BotCommand(command='karma', description='Отображает статистику пользователя'),
-        BotCommand(command='rating', description='Выводит рейтинг тех, кто получил благодарность'),
+        BotCommand(command='rating', description='Топ 10 чата'),
         BotCommand(command='help', description='Подсказка')
     ])
     # await app_run()
